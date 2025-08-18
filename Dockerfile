@@ -6,7 +6,7 @@ COPY frontend/package.json frontend/pnpm-lock.yaml* ./
 RUN npm install -g pnpm
 RUN pnpm install
 COPY frontend/ ./
-RUN pnpm run build --host
+RUN pnpm run build
 
 # --- STAGE 2: Setup backend Flask ---
 FROM python:3.11-slim
