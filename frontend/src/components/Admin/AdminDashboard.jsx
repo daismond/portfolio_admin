@@ -15,6 +15,10 @@ import {
   Eye
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import SkillForm from './Forms/SkillForm'
+import ProjectForm from './Forms/ProjectForm'
+import ExperienceForm from './Forms/ExperienceForm'
+import EducationForm from './Forms/EducationForm'
 
 const AdminDashboard = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState('personal')
@@ -288,18 +292,493 @@ const AdminDashboard = ({ onLogout }) => {
     )
   }
 
+  // Composant de gestion des compétences
+  const SkillsManagement = () => {
+    const [skills, setSkills] = useState(data.skills || [])
+    const [editingSkill, setEditingSkill] = useState(null)
+    const [showForm, setShowForm] = useState(false)
+
+    const handleSaveSkill = async (skillData) => {
+      try {
+        const url = editingSkill 
+          ? `https://nghki1czxy8g.manus.space/api/skills/${editingSkill.id}`
+          : 'https://nghki1czxy8g.manus.space/api/skills'
+        
+        const response = await fetch(url, {
+          method: editingSkill ? 'PUT' : 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(skillData)
+        })
+
+        if (response.ok) {
+          const savedSkill = await response.json()
+          if (editingSkill) {
+            setSkills(skills.map(s => s.id === savedSkill.id ? savedSkill : s))
+          } else {
+            setSkills([...skills, savedSkill])
+          }
+          setEditingSkill(null)
+          setShowForm(false)
+        }
+      } catch (error) {
+        console.error('Erreur lors de la sauvegarde:', error)
+      }
+    }
+
+    const handleDeleteSkill = async (skillId) => {
+      if (confirm('Êtes-vous sûr de vouloir supprimer cette compétence ?')) {
+        try {
+          const response = await fetch(`https://nghki1czxy8g.manus.space/api/skills/${skillId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+          })
+
+          if (response.ok) {
+            setSkills(skills.filter(s => s.id !== skillId))
+          }
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error)
+        }
+      }
+    }
+
+    return (
+      <div>
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-lg font-semibold">Gestion des Compétences</h3>
+          <Button
+            onClick={() => {
+              setEditingSkill(null)
+              setShowForm(true)
+            }}
+            className="bg-primary hover:bg-primary/90"
+          >
+            <Plus size={20} className="mr-2" />
+            Ajouter une compétence
+          </Button>
+        </div>
+
+        {showForm && (
+          <SkillForm
+            skill={editingSkill}
+            onSave={handleSaveSkill}
+            onCancel={() => {
+              setShowForm(false)
+              setEditingSkill(null)
+            }}
+          />
+        )}
+
+        <div className="grid gap-4">
+          {skills.map((skill) => (
+            <div key={skill.id} className="bg-accent/50 p-4 rounded-lg border border-border">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h4 className="font-semibold text-foreground">{skill.name}</h4>
+                  <p className="text-sm text-muted-foreground">{skill.category}</p>
+                  <div className="mt-2">
+                    <div className="flex items-center">
+                      <span className="text-sm mr-2">Niveau: {skill.level}%</span>
+                      <div className="flex-1 bg-background rounded-full h-2">
+                        <div 
+                          className="h-2 rounded-full bg-primary" 
+                          style={{ width: `${skill.level}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex space-x-2 ml-4">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingSkill(skill)
+                      setShowForm(true)
+                    }}
+                  >
+                    <Edit size={16} />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDeleteSkill(skill.id)}
+                    className="text-red-400 hover:text-red-300"
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // Composant de gestion des projets
+  const ProjectsManagement = () => {
+    const [projects, setProjects] = useState(data.projects || [])
+    const [editingProject, setEditingProject] = useState(null)
+    const [showForm, setShowForm] = useState(false)
+
+    const handleSaveProject = async (projectData) => {
+      try {
+        const url = editingProject 
+          ? `https://nghki1czxy8g.manus.space/api/projects/${editingProject.id}`
+          : 'https://nghki1czxy8g.manus.space/api/projects'
+        
+        const response = await fetch(url, {
+          method: editingProject ? 'PUT' : 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(projectData)
+        })
+
+        if (response.ok) {
+          const savedProject = await response.json()
+          if (editingProject) {
+            setProjects(projects.map(p => p.id === savedProject.id ? savedProject : p))
+          } else {
+            setProjects([...projects, savedProject])
+          }
+          setEditingProject(null)
+          setShowForm(false)
+        }
+      } catch (error) {
+        console.error('Erreur lors de la sauvegarde:', error)
+      }
+    }
+
+    const handleDeleteProject = async (projectId) => {
+      if (confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
+        try {
+          const response = await fetch(`https://nghki1czxy8g.manus.space/api/projects/${projectId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+          })
+
+          if (response.ok) {
+            setProjects(projects.filter(p => p.id !== projectId))
+          }
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error)
+        }
+      }
+    }
+
+    return (
+      <div>
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-lg font-semibold">Gestion des Projets</h3>
+          <Button
+            onClick={() => {
+              setEditingProject(null)
+              setShowForm(true)
+            }}
+            className="bg-primary hover:bg-primary/90"
+          >
+            <Plus size={20} className="mr-2" />
+            Ajouter un projet
+          </Button>
+        </div>
+
+        {showForm && (
+          <ProjectForm
+            project={editingProject}
+            onSave={handleSaveProject}
+            onCancel={() => {
+              setShowForm(false)
+              setEditingProject(null)
+            }}
+          />
+        )}
+
+        <div className="grid gap-4">
+          {projects.map((project) => (
+            <div key={project.id} className="bg-accent/50 p-4 rounded-lg border border-border">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h4 className="font-semibold text-foreground">{project.title}</h4>
+                  <p className="text-sm text-muted-foreground mb-2">{project.category}</p>
+                  <p className="text-sm text-foreground">{project.description}</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {project.technologies && JSON.parse(project.technologies).map((tech, index) => (
+                      <span key={index} className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex space-x-2 ml-4">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingProject(project)
+                      setShowForm(true)
+                    }}
+                  >
+                    <Edit size={16} />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDeleteProject(project.id)}
+                    className="text-red-400 hover:text-red-300"
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // Composant de gestion des expériences
+  const ExperiencesManagement = () => {
+    const [experiences, setExperiences] = useState(data.experiences || [])
+    const [editingExperience, setEditingExperience] = useState(null)
+    const [showForm, setShowForm] = useState(false)
+
+    const handleSaveExperience = async (experienceData) => {
+      try {
+        const url = editingExperience 
+          ? `https://nghki1czxy8g.manus.space/api/experiences/${editingExperience.id}`
+          : 'https://nghki1czxy8g.manus.space/api/experiences'
+        
+        const response = await fetch(url, {
+          method: editingExperience ? 'PUT' : 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(experienceData)
+        })
+
+        if (response.ok) {
+          const savedExperience = await response.json()
+          if (editingExperience) {
+            setExperiences(experiences.map(e => e.id === savedExperience.id ? savedExperience : e))
+          } else {
+            setExperiences([...experiences, savedExperience])
+          }
+          setEditingExperience(null)
+          setShowForm(false)
+        }
+      } catch (error) {
+        console.error('Erreur lors de la sauvegarde:', error)
+      }
+    }
+
+    const handleDeleteExperience = async (experienceId) => {
+      if (confirm('Êtes-vous sûr de vouloir supprimer cette expérience ?')) {
+        try {
+          const response = await fetch(`https://nghki1czxy8g.manus.space/api/experiences/${experienceId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+          })
+
+          if (response.ok) {
+            setExperiences(experiences.filter(e => e.id !== experienceId))
+          }
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error)
+        }
+      }
+    }
+
+    return (
+      <div>
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-lg font-semibold">Gestion des Expériences</h3>
+          <Button
+            onClick={() => {
+              setEditingExperience(null)
+              setShowForm(true)
+            }}
+            className="bg-primary hover:bg-primary/90"
+          >
+            <Plus size={20} className="mr-2" />
+            Ajouter une expérience
+          </Button>
+        </div>
+
+        {showForm && (
+          <ExperienceForm
+            experience={editingExperience}
+            onSave={handleSaveExperience}
+            onCancel={() => {
+              setShowForm(false)
+              setEditingExperience(null)
+            }}
+          />
+        )}
+
+        <div className="grid gap-4">
+          {experiences.map((experience) => (
+            <div key={experience.id} className="bg-accent/50 p-4 rounded-lg border border-border">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h4 className="font-semibold text-foreground">{experience.title}</h4>
+                  <p className="text-sm text-muted-foreground">{experience.company} • {experience.period}</p>
+                  <p className="text-sm text-foreground mt-2">{experience.description}</p>
+                </div>
+                <div className="flex space-x-2 ml-4">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingExperience(experience)
+                      setShowForm(true)
+                    }}
+                  >
+                    <Edit size={16} />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDeleteExperience(experience.id)}
+                    className="text-red-400 hover:text-red-300"
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // Composant de gestion de l'éducation
+  const EducationManagement = () => {
+    const [education, setEducation] = useState(data.education || [])
+    const [editingEducation, setEditingEducation] = useState(null)
+    const [showForm, setShowForm] = useState(false)
+
+    const handleSaveEducation = async (educationData) => {
+      try {
+        const url = editingEducation 
+          ? `https://nghki1czxy8g.manus.space/api/education/${editingEducation.id}`
+          : 'https://nghki1czxy8g.manus.space/api/education'
+        
+        const response = await fetch(url, {
+          method: editingEducation ? 'PUT' : 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(educationData)
+        })
+
+        if (response.ok) {
+          const savedEducation = await response.json()
+          if (editingEducation) {
+            setEducation(education.map(e => e.id === savedEducation.id ? savedEducation : e))
+          } else {
+            setEducation([...education, savedEducation])
+          }
+          setEditingEducation(null)
+          setShowForm(false)
+        }
+      } catch (error) {
+        console.error('Erreur lors de la sauvegarde:', error)
+      }
+    }
+
+    const handleDeleteEducation = async (educationId) => {
+      if (confirm('Êtes-vous sûr de vouloir supprimer cette formation ?')) {
+        try {
+          const response = await fetch(`https://nghki1czxy8g.manus.space/api/education/${educationId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+          })
+
+          if (response.ok) {
+            setEducation(education.filter(e => e.id !== educationId))
+          }
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error)
+        }
+      }
+    }
+
+    return (
+      <div>
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-lg font-semibold">Gestion de la Formation</h3>
+          <Button
+            onClick={() => {
+              setEditingEducation(null)
+              setShowForm(true)
+            }}
+            className="bg-primary hover:bg-primary/90"
+          >
+            <Plus size={20} className="mr-2" />
+            Ajouter une formation
+          </Button>
+        </div>
+
+        {showForm && (
+          <EducationForm
+            education={editingEducation}
+            onSave={handleSaveEducation}
+            onCancel={() => {
+              setShowForm(false)
+              setEditingEducation(null)
+            }}
+          />
+        )}
+
+        <div className="grid gap-4">
+          {education.map((edu) => (
+            <div key={edu.id} className="bg-accent/50 p-4 rounded-lg border border-border">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h4 className="font-semibold text-foreground">{edu.degree}</h4>
+                  <p className="text-sm text-muted-foreground">{edu.school} • {edu.period}</p>
+                  {edu.specialization && (
+                    <p className="text-sm text-foreground mt-1">Spécialisation: {edu.specialization}</p>
+                  )}
+                </div>
+                <div className="flex space-x-2 ml-4">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingEducation(edu)
+                      setShowForm(true)
+                    }}
+                  >
+                    <Edit size={16} />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDeleteEducation(edu.id)}
+                    className="text-red-400 hover:text-red-300"
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'personal':
         return <PersonalInfoForm />
       case 'skills':
-        return <div className="text-center py-8 text-muted-foreground">Gestion des compétences - En développement</div>
+        return <SkillsManagement />
       case 'projects':
-        return <div className="text-center py-8 text-muted-foreground">Gestion des projets - En développement</div>
+        return <ProjectsManagement />
       case 'experiences':
-        return <div className="text-center py-8 text-muted-foreground">Gestion des expériences - En développement</div>
+        return <ExperiencesManagement />
       case 'education':
-        return <div className="text-center py-8 text-muted-foreground">Gestion de la formation - En développement</div>
+        return <EducationManagement />
       default:
         return null
     }
