@@ -137,14 +137,27 @@ const Projects = () => {
 
                 {/* Technologies */}
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {JSON.parse(project.technologies).map((tech) => (
-                    <span
-                      key={tech}
-                      className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium"
-                    >
-                      {tech}
-                    </span>
-                  ))}
+                  {(() => {
+                    try {
+                      return JSON.parse(project.technologies).map((tech) => (
+                        <span
+                          key={tech}
+                          className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium"
+                        >
+                          {tech}
+                        </span>
+                      ));
+                    } catch (e) {
+                      return (project.technologies || '').split(',').map((tech) => (
+                        <span
+                          key={tech}
+                          className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium"
+                        >
+                          {tech.trim()}
+                        </span>
+                      ));
+                    }
+                  })()}
                 </div>
 
                 {/* Liens */}

@@ -508,11 +508,21 @@ const AdminDashboard = ({ onLogout }) => {
                   <p className="text-sm text-muted-foreground mb-2">{project.category}</p>
                   <p className="text-sm text-foreground">{project.description}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {project.technologies && JSON.parse(project.technologies).map((tech, index) => (
-                      <span key={index} className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">
-                        {tech}
-                      </span>
-                    ))}
+                    {(() => {
+                      try {
+                        return JSON.parse(project.technologies).map((tech, index) => (
+                          <span key={index} className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">
+                            {tech}
+                          </span>
+                        ));
+                      } catch (e) {
+                        return (project.technologies || '').split(',').map((tech, index) => (
+                          <span key={index} className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">
+                            {tech.trim()}
+                          </span>
+                        ));
+                      }
+                    })()}
                   </div>
                 </div>
                 <div className="flex space-x-2 ml-4">
