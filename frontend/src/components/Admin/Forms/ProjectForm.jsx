@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Save, X, Plus, Trash2 } from 'lucide-react'
+import { Save, X, Plus, Trash2, Upload } from 'lucide-react'
 import { parseTechnologies, parseFeatures } from '@/lib/utils'
+import { API_BASE_URL } from '@/config'
 
 const ProjectForm = ({ project, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -23,6 +24,34 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
 
   const [newTechnology, setNewTechnology] = useState('')
   const [newFeature, setNewFeature] = useState('')
+  const [isUploading, setIsUploading] = useState(false)
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    setIsUploading(true)
+    const uploadFormData = new FormData()
+    uploadFormData.append('file', file)
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/upload`, {
+        method: 'POST',
+        body: uploadFormData,
+      })
+      const data = await response.json()
+      if (response.ok) {
+        setFormData(prev => ({ ...prev, image_url: data.url }))
+      } else {
+        alert(data.error || 'Erreur lors du téléchargement de l\'image.')
+      }
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('Erreur lors du téléchargement de l\'image.')
+    } finally {
+      setIsUploading(false)
+    }
+  }
 
   useEffect(() => {
     if (project) {
@@ -155,18 +184,36 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
             />
           </div>
 
-          <div>
+          <div className="md:col-span-2">
             <label className="block text-sm font-medium text-foreground mb-2">
-              URL de l'image
+              Image du projet
             </label>
-            <input
-              type="url"
-              name="image_url"
-              value={formData.image_url}
-              onChange={handleChange}
-              className="w-full px-4 py-3 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 text-foreground"
-              placeholder="https://example.com/image.jpg"
-            />
+            <div className="flex items-center gap-4">
+              <input
+                type="file"
+                id="image-upload"
+                onChange={handleImageUpload}
+                className="hidden"
+                accept="image/*"
+                disabled={isUploading}
+              />
+              <label
+                htmlFor="image-upload"
+                className={`flex-1 cursor-pointer bg-input border border-border rounded-lg p-4 text-center text-muted-foreground hover:bg-accent transition-colors ${isUploading ? 'cursor-not-allowed opacity-50' : ''}`}
+              >
+                <div className="flex items-center justify-center">
+                  <Upload size={20} className="mr-2" />
+                  {isUploading ? 'Téléchargement...' : 'Cliquer pour télécharger'}
+                </div>
+              </label>
+              {formData.image_url && (
+                <img
+                  src={formData.image_url.startsWith('/') ? `${API_BASE_URL}${formData.image_url}` : formData.image_url}
+                  alt="Aperçu"
+                  className="w-24 h-24 object-cover rounded-lg border border-border"
+                />
+              )}
+            </div>
           </div>
 
           <div>
