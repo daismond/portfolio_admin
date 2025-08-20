@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Save, X, Plus, Trash2 } from 'lucide-react'
+import { parseTechnologies, parseFeatures } from '@/lib/utils'
 
 const ProjectForm = ({ project, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -30,8 +31,8 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
         description: project.description || '',
         category: project.category || '',
         image_url: project.image_url || '',
-        technologies: project.technologies ? JSON.parse(project.technologies) : [],
-        features: project.features ? JSON.parse(project.features) : [],
+        technologies: parseTechnologies(project.technologies),
+        features: parseFeatures(project.features),
         downloads: project.downloads || '',
         rating: project.rating || '',
         users: project.users || '',
@@ -88,7 +89,11 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onSave(formData)
+    onSave({
+      ...formData,
+      technologies: JSON.stringify(formData.technologies),
+      features: JSON.stringify(formData.features)
+    })
   }
 
   return (
