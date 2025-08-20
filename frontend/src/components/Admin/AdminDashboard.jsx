@@ -12,7 +12,8 @@ import {
   Plus,
   Edit,
   Trash2,
-  Eye
+  Eye,
+  LayoutDashboard
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import SkillForm from './Forms/SkillForm'
@@ -20,11 +21,12 @@ import ProjectForm from './Forms/ProjectForm'
 import ExperienceForm from './Forms/ExperienceForm'
 import EducationForm from './Forms/EducationForm'
 import ConfirmationModal from './ConfirmationModal'
+import Dashboard from './Dashboard'
 import { API_BASE_URL } from '@/config'
 import { parseTechnologies } from '@/lib/utils'
 
 const AdminDashboard = ({ onLogout }) => {
-  const [activeTab, setActiveTab] = useState('personal')
+  const [activeTab, setActiveTab] = useState('dashboard')
   const [data, setData] = useState({
     personalInfo: null,
     skills: [],
@@ -36,6 +38,7 @@ const AdminDashboard = ({ onLogout }) => {
   const [isSaving, setIsSaving] = useState(false)
 
   const tabs = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'personal', label: 'Infos Personnelles', icon: User },
     { id: 'skills', label: 'Compétences', icon: Code },
     { id: 'projects', label: 'Projets', icon: FolderOpen },
@@ -849,6 +852,8 @@ const AdminDashboard = ({ onLogout }) => {
 
   const renderTabContent = () => {
     switch (activeTab) {
+      case 'dashboard':
+        return <Dashboard data={data} />
       case 'personal':
         return <PersonalInfoForm />
       case 'skills':
