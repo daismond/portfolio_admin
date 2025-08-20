@@ -104,6 +104,7 @@ const AdminDashboard = ({ onLogout }) => {
       if (response.ok) {
         const updatedData = await response.json()
         setData(prev => ({ ...prev, personalInfo: updatedData }))
+        window.dispatchEvent(new Event('data-changed'))
         alert('Informations sauvegardées avec succès!')
       } else {
         alert('Erreur lors de la sauvegarde')
@@ -320,6 +321,7 @@ const AdminDashboard = ({ onLogout }) => {
           }
           setEditingSkill(null)
           setShowForm(false)
+          window.dispatchEvent(new Event('data-changed'))
         }
       } catch (error) {
         console.error('Erreur lors de la sauvegarde:', error)
@@ -336,6 +338,7 @@ const AdminDashboard = ({ onLogout }) => {
 
           if (response.ok) {
             setSkills(skills.filter(s => s.id !== skillId))
+            window.dispatchEvent(new Event('data-changed'))
           }
         } catch (error) {
           console.error('Erreur lors de la suppression:', error)
@@ -444,6 +447,7 @@ const AdminDashboard = ({ onLogout }) => {
           }
           setEditingProject(null)
           setShowForm(false)
+          window.dispatchEvent(new Event('data-changed'))
         }
       } catch (error) {
         console.error('Erreur lors de la sauvegarde:', error)
@@ -460,6 +464,7 @@ const AdminDashboard = ({ onLogout }) => {
 
           if (response.ok) {
             setProjects(projects.filter(p => p.id !== projectId))
+            window.dispatchEvent(new Event('data-changed'))
           }
         } catch (error) {
           console.error('Erreur lors de la suppression:', error)
@@ -565,6 +570,7 @@ const AdminDashboard = ({ onLogout }) => {
           }
           setEditingExperience(null)
           setShowForm(false)
+          window.dispatchEvent(new Event('data-changed'))
         }
       } catch (error) {
         console.error('Erreur lors de la sauvegarde:', error)
@@ -581,6 +587,7 @@ const AdminDashboard = ({ onLogout }) => {
 
           if (response.ok) {
             setExperiences(experiences.filter(e => e.id !== experienceId))
+            window.dispatchEvent(new Event('data-changed'))
           }
         } catch (error) {
           console.error('Erreur lors de la suppression:', error)
@@ -679,6 +686,7 @@ const AdminDashboard = ({ onLogout }) => {
           }
           setEditingEducation(null)
           setShowForm(false)
+          window.dispatchEvent(new Event('data-changed'))
         }
       } catch (error) {
         console.error('Erreur lors de la sauvegarde:', error)
@@ -695,6 +703,7 @@ const AdminDashboard = ({ onLogout }) => {
 
           if (response.ok) {
             setEducation(education.filter(e => e.id !== educationId))
+            window.dispatchEvent(new Event('data-changed'))
           }
         } catch (error) {
           console.error('Erreur lors de la suppression:', error)

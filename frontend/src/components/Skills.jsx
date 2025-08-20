@@ -1,49 +1,47 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { API_BASE_URL } from '@/config'
 
 const Skills = () => {
-  const skillCategories = [
-    {
-      title: 'Développement Mobile',
-      skills: [
-        { name: 'React Native', level: 95, color: '#61DAFB' },
-        { name: 'Swift (iOS)', level: 90, color: '#FA7343' },
-        { name: 'Kotlin (Android)', level: 88, color: '#7F52FF' },
-        { name: 'Flutter', level: 85, color: '#02569B' },
-        { name: 'Xamarin', level: 75, color: '#3498DB' }
-      ]
-    },
-    {
-      title: 'Technologies Web',
-      skills: [
-        { name: 'JavaScript/TypeScript', level: 92, color: '#F7DF1E' },
-        { name: 'React.js', level: 90, color: '#61DAFB' },
-        { name: 'Node.js', level: 85, color: '#339933' },
-        { name: 'Next.js', level: 82, color: '#000000' },
-        { name: 'GraphQL', level: 78, color: '#E10098' }
-      ]
-    },
-    {
-      title: 'Backend & Base de Données',
-      skills: [
-        { name: 'Firebase', level: 90, color: '#FFCA28' },
-        { name: 'MongoDB', level: 85, color: '#47A248' },
-        { name: 'PostgreSQL', level: 80, color: '#336791' },
-        { name: 'AWS', level: 75, color: '#FF9900' },
-        { name: 'Docker', level: 70, color: '#2496ED' }
-      ]
-    },
-    {
-      title: 'Outils & Méthodologies',
-      skills: [
-        { name: 'Git/GitHub', level: 95, color: '#F05032' },
-        { name: 'Agile/Scrum', level: 90, color: '#00D4FF' },
-        { name: 'CI/CD', level: 85, color: '#FF6B35' },
-        { name: 'Testing', level: 82, color: '#8DD6F9' },
-        { name: 'Figma/Design', level: 78, color: '#F24E1E' }
-      ]
+  const [skills, setSkills] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchSkills = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/skills`)
+        const data = await response.json()
+        setSkills(data)
+      } catch (error) {
+        console.error('Erreur lors du chargement des compétences:', error)
+      } finally {
+        setIsLoading(false)
+      }
     }
-  ]
+    fetchSkills()
+  }, [])
+
+  const skillCategories = skills.reduce((acc, skill) => {
+    const category = skill.category || 'Autres'
+    if (!acc[category]) {
+      acc[category] = []
+    }
+    acc[category].push(skill)
+    return acc
+  }, {})
+
+  const colors = ['#61DAFB', '#FA7343', '#7F52FF', '#02569B', '#3498DB', '#F7DF1E', '#339933', '#000000', '#E10098', '#FFCA28', '#47A248', '#336791', '#FF9900', '#2496ED', '#F05032', '#00D4FF', '#FF6B35', '#8DD6F9', '#F24E1E']
+
+  if (isLoading) {
+    return (
+      <section className="py-20 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Chargement des compétences...</p>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="py-20 bg-background">
@@ -66,9 +64,9 @@ const Skills = () => {
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-12">
-          {skillCategories.map((category, categoryIndex) => (
+          {Object.entries(skillCategories).map(([category, skills], categoryIndex) => (
             <motion.div
-              key={category.title}
+              key={category}
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: categoryIndex * 0.2 }}
@@ -76,13 +74,13 @@ const Skills = () => {
               className="bg-card p-8 rounded-lg neon-border hover-glow"
             >
               <h3 className="text-2xl font-semibold mb-8 text-center gradient-text">
-                {category.title}
+                {category}
               </h3>
               
               <div className="space-y-6">
-                {category.skills.map((skill, skillIndex) => (
+                {skills.map((skill, skillIndex) => (
                   <motion.div
-                    key={skill.name}
+                    key={skill.id}
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ 
@@ -105,7 +103,7 @@ const Skills = () => {
                       <motion.div
                         className="h-full rounded-full relative"
                         style={{ 
-                          background: `linear-gradient(90deg, ${skill.color}, ${skill.color}80)` 
+                          background: `linear-gradient(90deg, ${colors[skillIndex % colors.length]}, ${colors[skillIndex % colors.length]}80)`
                         }}
                         initial={{ width: 0 }}
                         whileInView={{ width: `${skill.level}%` }}

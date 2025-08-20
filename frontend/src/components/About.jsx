@@ -1,30 +1,41 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Code, Smartphone, Zap, Users } from 'lucide-react'
+import { API_BASE_URL } from '@/config'
 
 const About = () => {
-  const features = [
-    {
-      icon: Code,
-      title: 'Code de Qualité',
-      description: 'J\'écris du code propre, maintenable et optimisé selon les meilleures pratiques.'
-    },
-    {
-      icon: Smartphone,
-      title: 'Multi-Plateforme',
-      description: 'Expertise en développement natif iOS/Android et solutions cross-platform.'
-    },
-    {
-      icon: Zap,
-      title: 'Performance',
-      description: 'Applications rapides et fluides avec une attention particulière à l\'UX.'
-    },
-    {
-      icon: Users,
-      title: 'Collaboration',
-      description: 'Travail en équipe agile avec une communication claire et efficace.'
+  const [personalInfo, setPersonalInfo] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchPersonalInfo = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/personal-info`)
+        const data = await response.json()
+        setPersonalInfo(data)
+      } catch (error) {
+        console.error('Erreur lors du chargement des informations personnelles:', error)
+      } finally {
+        setIsLoading(false)
+      }
     }
-  ]
+    fetchPersonalInfo()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <section className="py-20 bg-card/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Chargement...</p>
+        </div>
+      </section>
+    )
+  }
+
+  if (!personalInfo) {
+    return null
+  }
 
   return (
     <section className="py-20 bg-card/50">
@@ -52,38 +63,12 @@ const About = () => {
             className="space-y-6"
           >
             <h3 className="text-2xl md:text-3xl font-semibold text-foreground">
-              Passionné par l'innovation mobile
+              {personalInfo.title}
             </h3>
             
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Avec plus de 5 ans d'expérience dans le développement mobile, je me spécialise 
-              dans la création d'applications iOS et Android performantes et intuitives. 
-              Ma passion pour les nouvelles technologies me pousse constamment à explorer 
-              les dernières innovations du secteur.
+              {personalInfo.description}
             </p>
-
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              J'ai eu l'opportunité de travailler sur des projets variés, des startups 
-              innovantes aux grandes entreprises, en développant des solutions mobiles 
-              qui touchent des millions d'utilisateurs. Mon approche combine expertise 
-              technique et vision produit pour créer des expériences utilisateur exceptionnelles.
-            </p>
-
-            <div className="flex flex-wrap gap-4 pt-4">
-              {['React Native', 'Swift', 'Kotlin', 'Flutter', 'Firebase'].map((tech, index) => (
-                <motion.span
-                  key={tech}
-                  className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium neon-border"
-                  initial={{ opacity: 0, scale: 0 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  whileHover={{ scale: 1.05 }}
-                >
-                  {tech}
-                </motion.span>
-              ))}
-            </div>
           </motion.div>
 
           {/* Grille des caractéristiques */}
@@ -94,7 +79,28 @@ const About = () => {
             viewport={{ once: true }}
             className="grid grid-cols-1 sm:grid-cols-2 gap-6"
           >
-            {features.map((feature, index) => (
+            {[
+              {
+                icon: Code,
+                title: 'Code de Qualité',
+                description: 'J\'écris du code propre, maintenable et optimisé selon les meilleures pratiques.'
+              },
+              {
+                icon: Smartphone,
+                title: 'Multi-Plateforme',
+                description: 'Expertise en développement natif iOS/Android et solutions cross-platform.'
+              },
+              {
+                icon: Zap,
+                title: 'Performance',
+                description: 'Applications rapides et fluides avec une attention particulière à l\'UX.'
+              },
+              {
+                icon: Users,
+                title: 'Collaboration',
+                description: 'Travail en équipe agile avec une communication claire et efficace.'
+              }
+            ].map((feature, index) => (
               <motion.div
                 key={feature.title}
                 className="bg-card p-6 rounded-lg neon-border hover-glow group"
