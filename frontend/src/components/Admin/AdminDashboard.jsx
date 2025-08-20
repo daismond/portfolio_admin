@@ -19,6 +19,7 @@ import SkillForm from './Forms/SkillForm'
 import ProjectForm from './Forms/ProjectForm'
 import ExperienceForm from './Forms/ExperienceForm'
 import EducationForm from './Forms/EducationForm'
+import ConfirmationModal from './ConfirmationModal'
 import { API_BASE_URL } from '@/config'
 import { parseTechnologies } from '@/lib/utils'
 
@@ -300,6 +301,8 @@ const AdminDashboard = ({ onLogout }) => {
     const [skills, setSkills] = useState(data.skills || [])
     const [editingSkill, setEditingSkill] = useState(null)
     const [showForm, setShowForm] = useState(false)
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [itemToDelete, setItemToDelete] = useState(null)
 
     const handleSaveSkill = async (skillData) => {
       try {
@@ -329,26 +332,41 @@ const AdminDashboard = ({ onLogout }) => {
       }
     }
 
-    const handleDeleteSkill = async (skillId) => {
-      if (confirm('Êtes-vous sûr de vouloir supprimer cette compétence ?')) {
+    const confirmDeleteSkill = async () => {
+      if (itemToDelete) {
         try {
-          const response = await fetch(`${API_BASE_URL}/api/skills/${skillId}`, {
+          const response = await fetch(`${API_BASE_URL}/api/skills/${itemToDelete}`, {
             method: 'DELETE',
             headers: getAuthHeaders()
           })
 
           if (response.ok) {
-            setSkills(skills.filter(s => s.id !== skillId))
+            setSkills(skills.filter(s => s.id !== itemToDelete))
             window.dispatchEvent(new Event('data-changed'))
           }
         } catch (error) {
           console.error('Erreur lors de la suppression:', error)
+        } finally {
+          setItemToDelete(null)
+          setShowDeleteModal(false)
         }
       }
     }
 
+    const handleDeleteSkill = (skillId) => {
+      setItemToDelete(skillId)
+      setShowDeleteModal(true)
+    }
+
     return (
       <div>
+        <ConfirmationModal
+          open={showDeleteModal}
+          onOpenChange={setShowDeleteModal}
+          onConfirm={confirmDeleteSkill}
+          title="Supprimer la compétence"
+          description="Êtes-vous sûr de vouloir supprimer cette compétence ? Cette action est irréversible."
+        />
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-semibold">Gestion des Compétences</h3>
           <Button
@@ -426,6 +444,8 @@ const AdminDashboard = ({ onLogout }) => {
     const [projects, setProjects] = useState(data.projects || [])
     const [editingProject, setEditingProject] = useState(null)
     const [showForm, setShowForm] = useState(false)
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [itemToDelete, setItemToDelete] = useState(null)
 
     const handleSaveProject = async (projectData) => {
       try {
@@ -455,26 +475,41 @@ const AdminDashboard = ({ onLogout }) => {
       }
     }
 
-    const handleDeleteProject = async (projectId) => {
-      if (confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
+    const confirmDeleteProject = async () => {
+      if (itemToDelete) {
         try {
-          const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}`, {
+          const response = await fetch(`${API_BASE_URL}/api/projects/${itemToDelete}`, {
             method: 'DELETE',
             headers: getAuthHeaders()
           })
 
           if (response.ok) {
-            setProjects(projects.filter(p => p.id !== projectId))
+            setProjects(projects.filter(p => p.id !== itemToDelete))
             window.dispatchEvent(new Event('data-changed'))
           }
         } catch (error) {
           console.error('Erreur lors de la suppression:', error)
+        } finally {
+          setItemToDelete(null)
+          setShowDeleteModal(false)
         }
       }
     }
 
+    const handleDeleteProject = (projectId) => {
+      setItemToDelete(projectId)
+      setShowDeleteModal(true)
+    }
+
     return (
       <div>
+        <ConfirmationModal
+          open={showDeleteModal}
+          onOpenChange={setShowDeleteModal}
+          onConfirm={confirmDeleteProject}
+          title="Supprimer le projet"
+          description="Êtes-vous sûr de vouloir supprimer ce projet ? Cette action est irréversible."
+        />
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-semibold">Gestion des Projets</h3>
           <Button
@@ -549,6 +584,8 @@ const AdminDashboard = ({ onLogout }) => {
     const [experiences, setExperiences] = useState(data.experiences || [])
     const [editingExperience, setEditingExperience] = useState(null)
     const [showForm, setShowForm] = useState(false)
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [itemToDelete, setItemToDelete] = useState(null)
 
     const handleSaveExperience = async (experienceData) => {
       try {
@@ -578,26 +615,41 @@ const AdminDashboard = ({ onLogout }) => {
       }
     }
 
-    const handleDeleteExperience = async (experienceId) => {
-      if (confirm('Êtes-vous sûr de vouloir supprimer cette expérience ?')) {
+    const confirmDeleteExperience = async () => {
+      if (itemToDelete) {
         try {
-          const response = await fetch(`${API_BASE_URL}/api/experiences/${experienceId}`, {
+          const response = await fetch(`${API_BASE_URL}/api/experiences/${itemToDelete}`, {
             method: 'DELETE',
             headers: getAuthHeaders()
           })
 
           if (response.ok) {
-            setExperiences(experiences.filter(e => e.id !== experienceId))
+            setExperiences(experiences.filter(e => e.id !== itemToDelete))
             window.dispatchEvent(new Event('data-changed'))
           }
         } catch (error) {
           console.error('Erreur lors de la suppression:', error)
+        } finally {
+          setItemToDelete(null)
+          setShowDeleteModal(false)
         }
       }
     }
 
+    const handleDeleteExperience = (experienceId) => {
+      setItemToDelete(experienceId)
+      setShowDeleteModal(true)
+    }
+
     return (
       <div>
+        <ConfirmationModal
+          open={showDeleteModal}
+          onOpenChange={setShowDeleteModal}
+          onConfirm={confirmDeleteExperience}
+          title="Supprimer l'expérience"
+          description="Êtes-vous sûr de vouloir supprimer cette expérience ? Cette action est irréversible."
+        />
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-semibold">Gestion des Expériences</h3>
           <Button
@@ -665,6 +717,8 @@ const AdminDashboard = ({ onLogout }) => {
     const [education, setEducation] = useState(data.education || [])
     const [editingEducation, setEditingEducation] = useState(null)
     const [showForm, setShowForm] = useState(false)
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [itemToDelete, setItemToDelete] = useState(null)
 
     const handleSaveEducation = async (educationData) => {
       try {
@@ -694,26 +748,41 @@ const AdminDashboard = ({ onLogout }) => {
       }
     }
 
-    const handleDeleteEducation = async (educationId) => {
-      if (confirm('Êtes-vous sûr de vouloir supprimer cette formation ?')) {
+    const confirmDeleteEducation = async () => {
+      if (itemToDelete) {
         try {
-          const response = await fetch(`${API_BASE_URL}/api/education/${educationId}`, {
+          const response = await fetch(`${API_BASE_URL}/api/education/${itemToDelete}`, {
             method: 'DELETE',
             headers: getAuthHeaders()
           })
 
           if (response.ok) {
-            setEducation(education.filter(e => e.id !== educationId))
+            setEducation(education.filter(e => e.id !== itemToDelete))
             window.dispatchEvent(new Event('data-changed'))
           }
         } catch (error) {
           console.error('Erreur lors de la suppression:', error)
+        } finally {
+          setItemToDelete(null)
+          setShowDeleteModal(false)
         }
       }
     }
 
+    const handleDeleteEducation = (educationId) => {
+      setItemToDelete(educationId)
+      setShowDeleteModal(true)
+    }
+
     return (
       <div>
+        <ConfirmationModal
+          open={showDeleteModal}
+          onOpenChange={setShowDeleteModal}
+          onConfirm={confirmDeleteEducation}
+          title="Supprimer la formation"
+          description="Êtes-vous sûr de vouloir supprimer cette formation ? Cette action est irréversible."
+        />
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-semibold">Gestion de la Formation</h3>
           <Button
