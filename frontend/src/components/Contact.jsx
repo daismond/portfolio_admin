@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Mail, Phone, MapPin, Send, Github, Linkedin, Twitter } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { API_BASE_URL } from '@/config'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -17,18 +18,21 @@ const Contact = () => {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const fetchPersonalInfo = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/personal-info`)
-        const data = await response.json()
-        setPersonalInfo(data)
-      } catch (error) {
-        console.error('Erreur lors du chargement des informations personnelles:', error)
-      } finally {
-        setIsLoading(false)
+    const timer = setTimeout(() => {
+      const fetchPersonalInfo = async () => {
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/personal-info`)
+          const data = await response.json()
+          setPersonalInfo(data)
+        } catch (error) {
+          console.error('Erreur lors du chargement des informations personnelles:', error)
+        } finally {
+          setIsLoading(false)
+        }
       }
-    }
-    fetchPersonalInfo()
+      fetchPersonalInfo()
+    }, 1000)
+    return () => clearTimeout(timer)
   }, [])
 
   const handleInputChange = (e) => {
@@ -58,9 +62,36 @@ const Contact = () => {
   if (isLoading) {
     return (
       <section className="py-20 bg-card/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Chargement...</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <Skeleton className="h-12 w-1/2 mx-auto mb-6" />
+            <Skeleton className="h-4 w-24 mx-auto mb-8" />
+            <Skeleton className="h-6 w-3/4 mx-auto" />
+          </div>
+          <div className="grid lg:grid-cols-2 gap-12">
+            <div className="space-y-8">
+              <Skeleton className="h-8 w-1/2" />
+              <Skeleton className="h-20 w-full" />
+              <div className="space-y-6">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="flex items-center p-4">
+                    <Skeleton className="h-12 w-12 rounded-lg mr-4" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-5 w-24" />
+                      <Skeleton className="h-4 w-32" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="bg-card p-8 rounded-lg neon-border space-y-6">
+              <Skeleton className="h-8 w-3/4" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          </div>
         </div>
       </section>
     )

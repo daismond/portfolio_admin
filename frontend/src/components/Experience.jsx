@@ -2,6 +2,39 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Calendar, MapPin, Briefcase, Award } from 'lucide-react'
 import { API_BASE_URL } from '@/config'
+import { Skeleton } from '@/components/ui/skeleton'
+
+const ExperienceSkeleton = () => (
+  <div className="relative mb-12 ml-16">
+    <div className="absolute -left-20 top-6 w-4 h-4 rounded-full border-4 border-background bg-muted"></div>
+    <div className="bg-card p-6 rounded-lg neon-border">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+        <div>
+          <Skeleton className="h-6 w-48 mb-2" />
+          <Skeleton className="h-5 w-32" />
+        </div>
+        <div className="flex flex-col md:items-end mt-2 md:mt-0">
+          <Skeleton className="h-4 w-32 mb-2" />
+          <Skeleton className="h-4 w-24" />
+        </div>
+      </div>
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-5/6 mt-2" />
+    </div>
+  </div>
+)
+
+const EducationSkeleton = () => (
+  <div className="bg-card p-6 rounded-lg neon-border">
+    <Skeleton className="h-6 w-3/4 mb-2" />
+    <Skeleton className="h-5 w-1/2 mb-3" />
+    <div className="flex items-center mb-3">
+      <Skeleton className="h-4 w-24 mr-4" />
+      <Skeleton className="h-4 w-24" />
+    </div>
+    <Skeleton className="h-4 w-full" />
+  </div>
+)
 
 const Experience = () => {
   const [experiences, setExperiences] = useState([])
@@ -9,37 +42,29 @@ const Experience = () => {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [expResponse, eduResponse] = await Promise.all([
-          fetch(`${API_BASE_URL}/api/experiences`),
-          fetch(`${API_BASE_URL}/api/education`)
-        ])
-        const expData = await expResponse.json()
-        const eduData = await eduResponse.json()
-        setExperiences(expData)
-        setEducation(eduData)
-      } catch (error) {
-        console.error('Erreur lors du chargement des données:', error)
-      } finally {
-        setIsLoading(false)
+    const timer = setTimeout(() => {
+      const fetchData = async () => {
+        try {
+          const [expResponse, eduResponse] = await Promise.all([
+            fetch(`${API_BASE_URL}/api/experiences`),
+            fetch(`${API_BASE_URL}/api/education`)
+          ])
+          const expData = await expResponse.json()
+          const eduData = await eduResponse.json()
+          setExperiences(expData)
+          setEducation(eduData)
+        } catch (error) {
+          console.error('Erreur lors du chargement des données:', error)
+        } finally {
+          setIsLoading(false)
+        }
       }
-    }
-    fetchData()
+      fetchData()
+    }, 1000) // Simulate loading for 1 second
+    return () => clearTimeout(timer)
   }, [])
 
   const colors = ['#00D4FF', '#FF6B35', '#8B5CF6', '#10B981']
-
-  if (isLoading) {
-    return (
-      <section className="py-20 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Chargement du parcours...</p>
-        </div>
-      </section>
-    )
-  }
 
   return (
     <section className="py-20 bg-background">
@@ -78,53 +103,59 @@ const Experience = () => {
             {/* Ligne de temps */}
             <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary via-secondary to-primary"></div>
 
-            {experiences.map((exp, index) => (
-              <motion.div
-                key={exp.id}
-                initial={{ opacity: 0, x: -50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: index * 0.2 }}
-                viewport={{ once: true }}
-                className="relative mb-12 ml-16"
-              >
-                {/* Point sur la timeline */}
-                <div 
-                  className="absolute -left-20 top-6 w-4 h-4 rounded-full border-4 border-background"
-                  style={{ backgroundColor: colors[index % colors.length] }}
-                ></div>
-
-                {/* Carte d'expérience */}
+            {isLoading ? (
+              Array.from({ length: 2 }).map((_, index) => (
+                <ExperienceSkeleton key={index} />
+              ))
+            ) : (
+              experiences.map((exp, index) => (
                 <motion.div
-                  className="bg-card p-6 rounded-lg neon-border hover-glow"
-                  whileHover={{ scale: 1.02 }}
+                  key={exp.id}
+                  initial={{ opacity: 0, x: -50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, delay: index * 0.2 }}
+                  viewport={{ once: true }}
+                  className="relative mb-12 ml-16"
                 >
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-                    <div>
-                      <h4 className="text-xl font-semibold text-foreground mb-1">
-                        {exp.title}
-                      </h4>
-                      <p className="text-lg text-primary font-medium">
-                        {exp.company}
-                      </p>
-                    </div>
-                    <div className="flex flex-col md:items-end mt-2 md:mt-0">
-                      <div className="flex items-center text-muted-foreground mb-1">
-                        <Calendar size={16} className="mr-2" />
-                        <span className="text-sm">{exp.period}</span>
-                      </div>
-                      <div className="flex items-center text-muted-foreground">
-                        <MapPin size={16} className="mr-2" />
-                        <span className="text-sm">{exp.location}</span>
-                      </div>
-                    </div>
-                  </div>
+                  {/* Point sur la timeline */}
+                  <div
+                    className="absolute -left-20 top-6 w-4 h-4 rounded-full border-4 border-background"
+                    style={{ backgroundColor: colors[index % colors.length] }}
+                  ></div>
 
-                  <p className="text-muted-foreground mb-4">
-                    {exp.description}
-                  </p>
+                  {/* Carte d'expérience */}
+                  <motion.div
+                    className="bg-card p-6 rounded-lg neon-border hover-glow"
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                      <div>
+                        <h4 className="text-xl font-semibold text-foreground mb-1">
+                          {exp.title}
+                        </h4>
+                        <p className="text-lg text-primary font-medium">
+                          {exp.company}
+                        </p>
+                      </div>
+                      <div className="flex flex-col md:items-end mt-2 md:mt-0">
+                        <div className="flex items-center text-muted-foreground mb-1">
+                          <Calendar size={16} className="mr-2" />
+                          <span className="text-sm">{exp.period}</span>
+                        </div>
+                        <div className="flex items-center text-muted-foreground">
+                          <MapPin size={16} className="mr-2" />
+                          <span className="text-sm">{exp.location}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="text-muted-foreground mb-4">
+                      {exp.description}
+                    </p>
+                  </motion.div>
                 </motion.div>
-              </motion.div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
@@ -142,33 +173,39 @@ const Experience = () => {
           </motion.h3>
 
           <div className="grid md:grid-cols-2 gap-8">
-            {education.map((edu, index) => (
-              <motion.div
-                key={edu.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                viewport={{ once: true }}
-                className="bg-card p-6 rounded-lg neon-border hover-glow"
-                whileHover={{ scale: 1.02 }}
-              >
-                <h4 className="text-lg font-semibold text-foreground mb-2">
-                  {edu.degree}
-                </h4>
-                <p className="text-primary font-medium mb-2">
-                  {edu.school}
-                </p>
-                <div className="flex items-center text-muted-foreground mb-3">
-                  <Calendar size={16} className="mr-2" />
-                  <span className="text-sm mr-4">{edu.period}</span>
-                  <MapPin size={16} className="mr-2" />
-                  <span className="text-sm">{edu.location}</span>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {edu.specialization}
-                </p>
-              </motion.div>
-            ))}
+            {isLoading ? (
+              Array.from({ length: 2 }).map((_, index) => (
+                <EducationSkeleton key={index} />
+              ))
+            ) : (
+              education.map((edu, index) => (
+                <motion.div
+                  key={edu.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.2 }}
+                  viewport={{ once: true }}
+                  className="bg-card p-6 rounded-lg neon-border hover-glow"
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <h4 className="text-lg font-semibold text-foreground mb-2">
+                    {edu.degree}
+                  </h4>
+                  <p className="text-primary font-medium mb-2">
+                    {edu.school}
+                  </p>
+                  <div className="flex items-center text-muted-foreground mb-3">
+                    <Calendar size={16} className="mr-2" />
+                    <span className="text-sm mr-4">{edu.period}</span>
+                    <MapPin size={16} className="mr-2" />
+                    <span className="text-sm">{edu.location}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {edu.specialization}
+                  </p>
+                </motion.div>
+              ))
+            )}
           </div>
         </div>
 

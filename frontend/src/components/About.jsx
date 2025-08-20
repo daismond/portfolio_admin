@@ -2,32 +2,55 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Code, Smartphone, Zap, Users } from 'lucide-react'
 import { API_BASE_URL } from '@/config'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const About = () => {
   const [personalInfo, setPersonalInfo] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const fetchPersonalInfo = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/personal-info`)
-        const data = await response.json()
-        setPersonalInfo(data)
-      } catch (error) {
-        console.error('Erreur lors du chargement des informations personnelles:', error)
-      } finally {
-        setIsLoading(false)
+    const timer = setTimeout(() => {
+      const fetchPersonalInfo = async () => {
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/personal-info`)
+          const data = await response.json()
+          setPersonalInfo(data)
+        } catch (error) {
+          console.error('Erreur lors du chargement des informations personnelles:', error)
+        } finally {
+          setIsLoading(false)
+        }
       }
-    }
-    fetchPersonalInfo()
+      fetchPersonalInfo()
+    }, 1000)
+    return () => clearTimeout(timer)
   }, [])
 
   if (isLoading) {
     return (
       <section className="py-20 bg-card/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Chargement...</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <Skeleton className="h-12 w-1/2 mx-auto mb-6" />
+            <Skeleton className="h-4 w-24 mx-auto mb-8" />
+          </div>
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <Skeleton className="h-8 w-3/4" />
+              <Skeleton className="h-20 w-full" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="bg-card p-6 rounded-lg neon-border">
+                  <div className="flex items-center mb-4">
+                    <Skeleton className="h-12 w-12 rounded-lg mr-4" />
+                    <Skeleton className="h-6 w-3/4" />
+                  </div>
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
     )
