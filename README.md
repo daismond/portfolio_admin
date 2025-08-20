@@ -50,17 +50,37 @@ Assurez-vous d'avoir les éléments suivants installés sur votre système :
     pnpm install
     ```
 
-### ⚙️ Configuration des Variables d'Environnement
+### ⚙️ Configuration et Initialisation (backend)
 
-Pour que l'application fonctionne pleinement en production, vous devez configurer les variables d'environnement suivantes côté backend. Vous pouvez créer un fichier `.env` à la racine du dossier `backend` ou les définir directement sur votre serveur de déploiement.
+Suivez ces étapes dans l'ordre pour configurer et initialiser votre backend.
 
-#### Base de Données (Supabase/PostgreSQL)
+#### Étape 1 : Configurer la connexion à la base de données
 
-Pour connecter l'application à une base de données PostgreSQL distante (comme celle fournie par Supabase), il vous suffit de définir une seule variable d'environnement. Vous pouvez copier/coller l'URL de connexion (la "Connection string") directement depuis votre tableau de bord Supabase.
+Pour que l'application se connecte à votre base de données distante (Supabase), créez un fichier nommé `.env` à la racine du dossier `backend`. Dans ce fichier, ajoutez une seule ligne :
 
--   `DATABASE_URL`: L'URL complète de connexion à votre base de données PostgreSQL.
+```
+DATABASE_URL="VOTRE_URL_DE_CONNEXION_SUPABASE"
+```
 
-**Note importante :** Si la variable `DATABASE_URL` n'est pas définie, l'application basculera automatiquement sur une base de données SQLite locale. C'est idéal pour le développement, car vous n'avez pas besoin de configurer une base de données distante pour travailler sur l'application.
+Remplacez `VOTRE_URL_DE_CONNEXION_SUPABASE` par la chaîne de connexion (Connection string) fournie par Supabase.
+
+**Note :** Si ce fichier ou cette variable n'existent pas, l'application utilisera une base de données de test locale (SQLite), ce qui est pratique pour le développement.
+
+#### Étape 2 : Initialiser la base de données
+
+Cette étape est **cruciale** pour une nouvelle base de données. Elle va créer toutes les tables et y insérer les données de base (comme votre compte `admin`).
+
+**Attention :** N'exécutez cette commande qu'une seule fois sur une base de données vide.
+
+Depuis le dossier `backend` (avec votre environnement virtuel activé), lancez :
+```bash
+python -m src.seed_data
+```
+Le script va se connecter à l'URL que vous avez définie à l'étape 1 et peupler la base de données. Vous pourrez ensuite vous connecter avec `admin` et `admin123`.
+
+#### Étape 3 : Configurer les E-mails (Optionnel)
+
+Pour que l'envoi d'e-mails depuis le formulaire de contact fonctionne, ajoutez ces variables à votre fichier `.env` :
 
 #### Configuration E-mail
 
