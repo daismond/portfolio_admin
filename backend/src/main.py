@@ -9,6 +9,7 @@ from src.models.portfolio import db
 from src.routes.user import user_bp
 from src.routes.portfolio import portfolio_bp
 from src.routes.upload import upload_bp
+from src.routes.blog import blog_bp
 
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
 app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
@@ -20,6 +21,7 @@ CORS(app, origins=["https://portfolio-admin-1.onrender.com", "https://xlhyimcl6w
 app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(portfolio_bp, url_prefix='/api')
 app.register_blueprint(upload_bp, url_prefix='/api')
+app.register_blueprint(blog_bp, url_prefix='/api')
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):

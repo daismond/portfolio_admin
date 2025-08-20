@@ -13,6 +13,8 @@ import Contact from './components/Contact'
 import Navigation from './components/Navigation'
 import ParticleBackground from './components/ParticleBackground'
 import AdminApp from './components/Admin/AdminApp'
+import BlogPage from './components/BlogPage'
+import BlogPostPage from './components/BlogPostPage'
 
 function PortfolioHome() {
   const [dataVersion, setDataVersion] = useState(0)
@@ -69,6 +71,8 @@ function App() {
       <Routes>
         <Route path="/" element={<PortfolioHome />} />
         <Route path="/admin" element={<AdminApp />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:slug" element={<BlogPostPage />} />
       </Routes>
     </Router>
   )

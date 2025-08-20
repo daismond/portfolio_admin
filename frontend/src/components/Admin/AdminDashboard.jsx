@@ -14,13 +14,15 @@ import {
   Trash2,
   Eye,
   LayoutDashboard,
-  Menu
+  Menu,
+  Newspaper
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import SkillForm from './Forms/SkillForm'
 import ProjectForm from './Forms/ProjectForm'
 import ExperienceForm from './Forms/ExperienceForm'
 import EducationForm from './Forms/EducationForm'
+import BlogPostForm from './Forms/BlogPostForm'
 import ConfirmationModal from './ConfirmationModal'
 import Dashboard from './Dashboard'
 import { DndContext, closestCenter } from '@dnd-kit/core';
@@ -53,7 +55,8 @@ const AdminDashboard = ({ onLogout }) => {
     { id: 'skills', label: 'Compétences', icon: Code },
     { id: 'projects', label: 'Projets', icon: FolderOpen },
     { id: 'experiences', label: 'Expériences', icon: Briefcase },
-    { id: 'education', label: 'Formation', icon: GraduationCap }
+    { id: 'education', label: 'Formation', icon: GraduationCap },
+    { id: 'blog', label: 'Blog', icon: Newspaper }
   ]
 
   const getAuthHeaders = () => {
@@ -1080,6 +1083,152 @@ const AdminDashboard = ({ onLogout }) => {
     )
   }
 
+  const BlogManagement = () => {
+    const [posts, setPosts] = useState([])
+    const [editingPost, setEditingPost] = useState(null)
+    const [showForm, setShowForm] = useState(false)
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [itemToDelete, setItemToDelete] = useState(null)
+
+    useEffect(() => {
+      const fetchPosts = async () => {
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/admin/blog/posts`, {
+            headers: getAuthHeaders()
+          })
+          const data = await response.json()
+          setPosts(data)
+        } catch (error) {
+          console.error('Erreur lors du chargement des articles:', error)
+        }
+      }
+      fetchPosts()
+    }, [])
+
+    const handleSavePost = async (postData) => {
+      try {
+        const url = editingPost
+          ? `${API_BASE_URL}/api/admin/blog/posts/${editingPost.id}`
+          : `${API_BASE_URL}/api/admin/blog/posts`
+
+        const response = await fetch(url, {
+          method: editingPost ? 'PUT' : 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(postData)
+        })
+
+        if (response.ok) {
+          const savedPost = await response.json()
+          if (editingPost) {
+            setPosts(posts.map(p => p.id === savedPost.id ? savedPost : p))
+          } else {
+            setPosts([...posts, savedPost])
+          }
+          setEditingPost(null)
+          setShowForm(false)
+        }
+      } catch (error) {
+        console.error('Erreur lors de la sauvegarde:', error)
+      }
+    }
+
+    const confirmDeletePost = async () => {
+      if (itemToDelete) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/admin/blog/posts/${itemToDelete}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+          })
+
+          if (response.ok) {
+            setPosts(posts.filter(p => p.id !== itemToDelete))
+          }
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error)
+        } finally {
+          setItemToDelete(null)
+          setShowDeleteModal(false)
+        }
+      }
+    }
+
+    const handleDeletePost = (postId) => {
+      setItemToDelete(postId)
+      setShowDeleteModal(true)
+    }
+
+    return (
+      <div>
+        <ConfirmationModal
+          open={showDeleteModal}
+          onOpenChange={setShowDeleteModal}
+          onConfirm={confirmDeletePost}
+          title="Supprimer l'article"
+          description="Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible."
+        />
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-lg font-semibold">Gestion du Blog</h3>
+          <Button
+            onClick={() => {
+              setEditingPost(null)
+              setShowForm(true)
+            }}
+            className="bg-primary hover:bg-primary/90"
+          >
+            <Plus size={20} className="mr-2" />
+            Ajouter un article
+          </Button>
+        </div>
+
+        {showForm && (
+          <BlogPostForm
+            post={editingPost}
+            onSave={handleSavePost}
+            onCancel={() => {
+              setShowForm(false)
+              setEditingPost(null)
+            }}
+          />
+        )}
+
+        <div className="grid gap-4">
+          {posts.map((post) => (
+            <div key={post.id} className="bg-card p-4 rounded-lg border border-border">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h4 className="font-semibold text-foreground">{post.title}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {post.is_published ? 'Publié' : 'Brouillon'} • Par {post.author}
+                  </p>
+                </div>
+                <div className="flex space-x-2 ml-4">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingPost(post)
+                      setShowForm(true)
+                    }}
+                  >
+                    <Edit size={16} />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDeletePost(post.id)}
+                    className="text-red-400 hover:text-red-300"
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -1094,6 +1243,8 @@ const AdminDashboard = ({ onLogout }) => {
         return <ExperiencesManagement />
       case 'education':
         return <EducationManagement />
+      case 'blog':
+        return <BlogManagement />
       default:
         return null
     }
