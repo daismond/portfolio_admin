@@ -52,10 +52,24 @@ Assurez-vous d'avoir les éléments suivants installés sur votre système :
 
 ### ⚙️ Configuration des Variables d'Environnement
 
-Pour que certaines fonctionnalités fonctionnent correctement (comme l'envoi d'e-mails depuis le formulaire de contact), vous devez configurer les variables d'environnement suivantes côté backend. Vous pouvez créer un fichier `.env` à la racine du dossier `backend` ou les définir directement sur votre serveur de déploiement.
+Pour que l'application fonctionne pleinement en production, vous devez configurer les variables d'environnement suivantes côté backend. Vous pouvez créer un fichier `.env` à la racine du dossier `backend` ou les définir directement sur votre serveur de déploiement.
+
+#### Base de Données (Supabase/PostgreSQL)
+
+Pour connecter l'application à une base de données PostgreSQL distante (comme celle fournie par Supabase), définissez les variables suivantes. **Si ces variables ne sont pas définies, l'application utilisera une base de données SQLite locale (`backend/src/database/app.db`), ce qui est utile pour le développement.**
+
+-   `DB_HOST`: L'adresse du serveur de votre base de données (ex: `aws-0-eu-central-1.pooler.supabase.com`).
+-   `DB_NAME`: Le nom de la base de données (généralement `postgres` pour Supabase).
+-   `DB_USER`: Le nom d'utilisateur de la base de données.
+-   `DB_PASSWORD`: Le mot de passe de la base de données.
+-   `DB_PORT`: Le port de connexion (ex: `5432` ou `6543` pour le pooling de connexion Supabase).
+
+#### Configuration E-mail
+
+Pour que l'envoi d'e-mails depuis le formulaire de contact fonctionne, configurez également ces variables :
 
 -   `MAIL_SERVER`: Le serveur SMTP pour l'envoi d'e-mails (ex: `smtp.gmail.com`).
--   `MAIL_PORT`: Le port du serveur SMTP (ex: `587` pour TLS ou `465` pour SSL).
+-   `MAIL_PORT`: Le port du serveur SMTP (ex: `587`).
 -   `MAIL_USE_TLS`: Mettre à `true` si votre serveur utilise TLS.
 -   `MAIL_USERNAME`: Votre adresse e-mail pour l'authentification.
 -   `MAIL_PASSWORD`: Le mot de passe de votre compte e-mail (ou un mot de passe d'application).

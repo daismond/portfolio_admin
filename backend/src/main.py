@@ -38,12 +38,32 @@ app.register_blueprint(blog_bp, url_prefix='/api')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-# uncomment if you need to use database
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(os.path.dirname(__file__), 'database', 'app.db')}"
+# Database Configuration - Supabase (PostgreSQL) or fallback to SQLite
+DB_USER = os.environ.get('DB_USER')
+DB_PASSWORD = os.environ.get('DB_PASSWORD')
+DB_HOST = os.environ.get('DB_HOST')
+DB_NAME = os.environ.get('DB_NAME')
+DB_PORT = os.environ.get('DB_PORT', '5432')
+
+if all([DB_USER, DB_PASSWORD, DB_HOST, DB_NAME]):
+    # If all Supabase variables are set, use PostgreSQL
+    DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    print("Connecting to PostgreSQL database...")
+    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+else:
+    # Otherwise, fall back to SQLite for local development
+    db_path = os.path.join(os.path.dirname(__file__), 'database', 'app.db')
+    print(f"WARNING: Database environment variables not set. Falling back to SQLite at {db_path}")
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
-with app.app_context():
-    db.create_all()
+
+# In a production environment with PostgreSQL, it is better to manage database
+# creation and migrations with a dedicated tool like Flask-Migrate or Alembic.
+# The following lines are commented out to prevent accidental table creation/deletion.
+# with app.app_context():
+#     db.create_all()
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
