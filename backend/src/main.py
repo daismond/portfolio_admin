@@ -26,11 +26,20 @@ app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
 
 mail = Mail(app)
 
-# Enable CORS for all routes.
-# This is a security feature that tells the browser which frontend URLs are allowed to make requests to this backend.
-# The URLs listed here are the addresses of YOUR deployed frontend applications.
-# This is NOT a connection to an external backend. Your frontend calls this backend, and this backend checks if the frontend's URL is on this "allowed" list.
-CORS(app, origins=["https://portfolio-admin-1.onrender.com", "https://xlhyimcl6wjk.manus.space", "https://nghki1czxy8g.manus.space"], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"], allow_headers=["Content-Type", "Authorization"])
+# CORS configuration is now managed by environment variables for flexibility and clarity.
+# See the .env.example or README.md for details on setting FRONTEND_ORIGINS.
+frontend_origins_str = os.environ.get('FRONTEND_ORIGINS')
+if frontend_origins_str:
+    # If the variable is set from the .env file, use those origins.
+    # The expected format is a comma-separated string of URLs.
+    origins = [origin.strip() for origin in frontend_origins_str.split(',')]
+    print(f"INFO: Allowing CORS for configured origins: {origins}")
+else:
+    # If the variable is not set, use default origins suitable for local development.
+    origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    print(f"INFO: FRONTEND_ORIGINS not set. Defaulting to local development CORS: {origins}")
+
+CORS(app, origins=origins, supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"], allow_headers=["Content-Type", "Authorization"])
 
 app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(portfolio_bp, url_prefix='/api')

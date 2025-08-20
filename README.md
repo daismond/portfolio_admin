@@ -54,15 +54,17 @@ Assurez-vous d'avoir les éléments suivants installés sur votre système :
 
 Suivez ces étapes dans l'ordre pour configurer et initialiser votre backend.
 
-#### Étape 1 : Configurer la connexion à la base de données
+#### Étape 1 : Créer le fichier d'environnement
 
-Pour que l'application se connecte à votre base de données distante (Supabase), créez un fichier nommé `.env` à la racine du dossier `backend`. Dans ce fichier, ajoutez une seule ligne :
+Créez un fichier nommé `.env` à la racine du dossier `backend`. Vous pouvez copier le fichier `backend/.env.example` pour démarrer.
 
-```
-DATABASE_URL="VOTRE_URL_DE_CONNEXION_SUPABASE"
-```
+#### Étape 2 : Configurer les variables
 
-Remplacez `VOTRE_URL_DE_CONNEXION_SUPABASE` par la chaîne de connexion (Connection string) fournie par Supabase.
+Ouvrez votre nouveau fichier `backend/.env` et remplissez les variables nécessaires :
+
+-   `DATABASE_URL`: **(Obligatoire)** L'URL complète de connexion à votre base de données PostgreSQL (Supabase).
+-   `FRONTEND_ORIGINS`: **(Obligatoire pour la production)** Une liste d'URL de vos frontends autorisés à contacter ce backend, séparées par des virgules. Par exemple : `https://mon-portfolio.com,https://mon-admin.com`. Pour le développement local, vous n'avez pas besoin de définir cette variable.
+-   `MAIL_SERVER`, `MAIL_PORT`, etc. : **(Optionnel)** Remplissez ces variables si vous souhaitez que le formulaire de contact envoie des e-mails.
 
 **Note :** Si ce fichier ou cette variable n'existent pas, l'application utilisera une base de données de test locale (SQLite), ce qui est pratique pour le développement.
 
