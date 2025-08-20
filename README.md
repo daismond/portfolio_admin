@@ -50,6 +50,27 @@ Assurez-vous d'avoir les éléments suivants installés sur votre système :
     pnpm install
     ```
 
+### ⚙️ Configuration des Variables d'Environnement
+
+Pour que certaines fonctionnalités fonctionnent correctement (comme l'envoi d'e-mails depuis le formulaire de contact), vous devez configurer les variables d'environnement suivantes côté backend. Vous pouvez créer un fichier `.env` à la racine du dossier `backend` ou les définir directement sur votre serveur de déploiement.
+
+-   `MAIL_SERVER`: Le serveur SMTP pour l'envoi d'e-mails (ex: `smtp.gmail.com`).
+-   `MAIL_PORT`: Le port du serveur SMTP (ex: `587` pour TLS ou `465` pour SSL).
+-   `MAIL_USE_TLS`: Mettre à `true` si votre serveur utilise TLS.
+-   `MAIL_USERNAME`: Votre adresse e-mail pour l'authentification.
+-   `MAIL_PASSWORD`: Le mot de passe de votre compte e-mail (ou un mot de passe d'application).
+-   `MAIL_DEFAULT_SENDER`: L'adresse e-mail qui apparaîtra comme expéditeur.
+
+**Exemple de configuration pour Gmail :**
+```
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USE_TLS=true
+MAIL_USERNAME=votre.email@gmail.com
+MAIL_PASSWORD=votremotdepassedapplication
+MAIL_DEFAULT_SENDER=votre.email@gmail.com
+```
+
 ### ▶️ Exécution du Projet
 
 Pour lancer le portfolio et son interface d'administration, vous devez démarrer le backend et le frontend séparément.
