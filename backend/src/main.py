@@ -26,7 +26,10 @@ app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
 
 mail = Mail(app)
 
-# Enable CORS for all routes
+# Enable CORS for all routes.
+# This is a security feature that tells the browser which frontend URLs are allowed to make requests to this backend.
+# The URLs listed here are the addresses of YOUR deployed frontend applications.
+# This is NOT a connection to an external backend. Your frontend calls this backend, and this backend checks if the frontend's URL is on this "allowed" list.
 CORS(app, origins=["https://portfolio-admin-1.onrender.com", "https://xlhyimcl6wjk.manus.space", "https://nghki1czxy8g.manus.space"], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"], allow_headers=["Content-Type", "Authorization"])
 
 app.register_blueprint(user_bp, url_prefix='/api')

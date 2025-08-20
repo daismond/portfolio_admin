@@ -9,7 +9,30 @@ import json
 
 def create_app():
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(os.path.dirname(__file__), 'database', 'app.db')}"
+
+    # Explicitly load .env file for the script
+    from dotenv import load_dotenv
+    # The .env file is expected to be in the 'backend' directory, which is the parent of 'src'
+    dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+    if os.path.exists(dotenv_path):
+        load_dotenv(dotenv_path=dotenv_path)
+        print(f"INFO: Loaded environment variables from {dotenv_path}")
+
+    DATABASE_URL = os.environ.get('DATABASE_URL')
+
+    if DATABASE_URL:
+        # If DATABASE_URL is set, use it for the remote PostgreSQL database.
+        print("INFO: DATABASE_URL detected. Connecting seed script to external PostgreSQL database...")
+        # Ensure the URI scheme is 'postgresql' for SQLAlchemy compatibility.
+        if DATABASE_URL.startswith("postgres://"):
+            DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+        app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+    else:
+        # If DATABASE_URL is not set, fall back to the local SQLite database.
+        db_path = os.path.join(os.path.dirname(__file__), 'database', 'app.db')
+        print(f"INFO: DATABASE_URL not set. Connecting seed script to SQLite database at {db_path}")
+        app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
+
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
     return app
