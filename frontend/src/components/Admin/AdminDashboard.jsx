@@ -397,7 +397,7 @@ const AdminDashboard = ({ onLogout }) => {
 
         <div className="grid gap-4">
           {skills.map((skill) => (
-            <div key={skill.id} className="bg-accent/50 p-4 rounded-lg border border-border">
+            <div key={skill.id} className="bg-card p-4 rounded-lg border border-border">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h4 className="font-semibold text-foreground">{skill.name}</h4>
@@ -540,7 +540,7 @@ const AdminDashboard = ({ onLogout }) => {
 
         <div className="grid gap-4">
           {projects.map((project) => (
-            <div key={project.id} className="bg-accent/50 p-4 rounded-lg border border-border">
+            <div key={project.id} className="bg-card p-4 rounded-lg border border-border">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h4 className="font-semibold text-foreground">{project.title}</h4>
@@ -680,7 +680,7 @@ const AdminDashboard = ({ onLogout }) => {
 
         <div className="grid gap-4">
           {experiences.map((experience) => (
-            <div key={experience.id} className="bg-accent/50 p-4 rounded-lg border border-border">
+            <div key={experience.id} className="bg-card p-4 rounded-lg border border-border">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h4 className="font-semibold text-foreground">{experience.title}</h4>
@@ -813,7 +813,7 @@ const AdminDashboard = ({ onLogout }) => {
 
         <div className="grid gap-4">
           {education.map((edu) => (
-            <div key={edu.id} className="bg-accent/50 p-4 rounded-lg border border-border">
+            <div key={edu.id} className="bg-card p-4 rounded-lg border border-border">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h4 className="font-semibold text-foreground">{edu.degree}</h4>
