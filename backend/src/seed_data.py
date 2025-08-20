@@ -23,9 +23,11 @@ def create_app():
     if DATABASE_URL:
         # If DATABASE_URL is set, use it for the remote PostgreSQL database.
         print("INFO: DATABASE_URL detected. Connecting seed script to external PostgreSQL database...")
-        # Ensure the URI scheme is 'postgresql' for SQLAlchemy compatibility.
+        # Ensure the URI scheme is 'postgresql' for SQLAlchemy, then adapt for the pg8000 driver.
         if DATABASE_URL.startswith("postgres://"):
             DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+        if DATABASE_URL.startswith("postgresql://"):
+            DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+pg8000://", 1)
         app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
     else:
         # If DATABASE_URL is not set, fall back to the local SQLite database.
