@@ -15,8 +15,8 @@ def create_app():
     # The .env file is expected to be in the 'backend' directory, which is the parent of 'src'
     dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
     if os.path.exists(dotenv_path):
-        load_dotenv(dotenv_path=dotenv_path)
-        print(f"INFO: Loaded environment variables from {dotenv_path}")
+        load_dotenv(dotenv_path=dotenv_path, encoding='utf-8')
+        print(f"INFO: Loaded environment variables from {dotenv_path} with UTF-8 encoding.")
 
     DATABASE_URL = os.environ.get('DATABASE_URL')
 

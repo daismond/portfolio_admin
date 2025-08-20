@@ -3,6 +3,12 @@ import sys
 # DON'T CHANGE THIS !!!
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
+# Explicitly load .env file with UTF-8 encoding to prevent errors on Windows
+from dotenv import load_dotenv
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path=dotenv_path, encoding='utf-8')
+
 from flask import Flask, send_from_directory
 from flask_cors import CORS
 from flask_mail import Mail, Message
