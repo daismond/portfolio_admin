@@ -8,15 +8,22 @@ from flask_cors import CORS
 from src.models.portfolio import db
 from src.routes.user import user_bp
 from src.routes.portfolio import portfolio_bp
+from src.routes.upload import upload_bp
 
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
 app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'uploads')
 
 # Enable CORS for all routes
 CORS(app, origins=["https://portfolio-admin-1.onrender.com", "https://xlhyimcl6wjk.manus.space", "https://nghki1czxy8g.manus.space"], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"], allow_headers=["Content-Type", "Authorization"])
 
 app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(portfolio_bp, url_prefix='/api')
+app.register_blueprint(upload_bp, url_prefix='/api')
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # uncomment if you need to use database
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(os.path.dirname(__file__), 'database', 'app.db')}"
