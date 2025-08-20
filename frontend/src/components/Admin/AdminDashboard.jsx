@@ -19,6 +19,7 @@ import SkillForm from './Forms/SkillForm'
 import ProjectForm from './Forms/ProjectForm'
 import ExperienceForm from './Forms/ExperienceForm'
 import EducationForm from './Forms/EducationForm'
+import { API_BASE_URL } from '@/config'
 
 const AdminDashboard = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState('personal')
@@ -52,12 +53,12 @@ const AdminDashboard = ({ onLogout }) => {
     setIsLoading(true)
     try {
       const endpoints = [
-        "https://xlhyimcl6wjk.manus.space/api/personal-info",
-        "https://xlhyimcl6wjk.manus.space/api/skills",
-        "https://xlhyimcl6wjk.manus.space/api/projects",
-        "https://xlhyimcl6wjk.manus.space/api/experiences",
-        "https://xlhyimcl6wjk.manus.space/api/education"
-      ]
+        "personal-info",
+        "skills",
+        "projects",
+        "experiences",
+        "education"
+      ].map(e => `${API_BASE_URL}/api/${e}`)
 
       const responses = await Promise.all(
         endpoints.map(endpoint => fetch(endpoint))
@@ -94,7 +95,7 @@ const AdminDashboard = ({ onLogout }) => {
   const savePersonalInfo = async (formData) => {
     setIsSaving(true)
     try {
-      const response = await fetch("https://xlhyimcl6wjk.manus.space/api/personal-info", {
+      const response = await fetch(`${API_BASE_URL}/api/personal-info`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify(formData)
@@ -301,8 +302,8 @@ const AdminDashboard = ({ onLogout }) => {
     const handleSaveSkill = async (skillData) => {
       try {
         const url = editingSkill 
-          ? `https://nghki1czxy8g.manus.space/api/skills/${editingSkill.id}`
-          : 'https://nghki1czxy8g.manus.space/api/skills'
+          ? `${API_BASE_URL}/api/skills/${editingSkill.id}`
+          : `${API_BASE_URL}/api/skills`
         
         const response = await fetch(url, {
           method: editingSkill ? 'PUT' : 'POST',
@@ -328,7 +329,7 @@ const AdminDashboard = ({ onLogout }) => {
     const handleDeleteSkill = async (skillId) => {
       if (confirm('Êtes-vous sûr de vouloir supprimer cette compétence ?')) {
         try {
-          const response = await fetch(`https://nghki1czxy8g.manus.space/api/skills/${skillId}`, {
+          const response = await fetch(`${API_BASE_URL}/api/skills/${skillId}`, {
             method: 'DELETE',
             headers: getAuthHeaders()
           })
@@ -425,8 +426,8 @@ const AdminDashboard = ({ onLogout }) => {
     const handleSaveProject = async (projectData) => {
       try {
         const url = editingProject 
-          ? `https://nghki1czxy8g.manus.space/api/projects/${editingProject.id}`
-          : 'https://nghki1czxy8g.manus.space/api/projects'
+          ? `${API_BASE_URL}/api/projects/${editingProject.id}`
+          : `${API_BASE_URL}/api/projects`
         
         const response = await fetch(url, {
           method: editingProject ? 'PUT' : 'POST',
@@ -452,7 +453,7 @@ const AdminDashboard = ({ onLogout }) => {
     const handleDeleteProject = async (projectId) => {
       if (confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
         try {
-          const response = await fetch(`https://nghki1czxy8g.manus.space/api/projects/${projectId}`, {
+          const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}`, {
             method: 'DELETE',
             headers: getAuthHeaders()
           })
@@ -546,8 +547,8 @@ const AdminDashboard = ({ onLogout }) => {
     const handleSaveExperience = async (experienceData) => {
       try {
         const url = editingExperience 
-          ? `https://nghki1czxy8g.manus.space/api/experiences/${editingExperience.id}`
-          : 'https://nghki1czxy8g.manus.space/api/experiences'
+          ? `${API_BASE_URL}/api/experiences/${editingExperience.id}`
+          : `${API_BASE_URL}/api/experiences`
         
         const response = await fetch(url, {
           method: editingExperience ? 'PUT' : 'POST',
@@ -573,7 +574,7 @@ const AdminDashboard = ({ onLogout }) => {
     const handleDeleteExperience = async (experienceId) => {
       if (confirm('Êtes-vous sûr de vouloir supprimer cette expérience ?')) {
         try {
-          const response = await fetch(`https://nghki1czxy8g.manus.space/api/experiences/${experienceId}`, {
+          const response = await fetch(`${API_BASE_URL}/api/experiences/${experienceId}`, {
             method: 'DELETE',
             headers: getAuthHeaders()
           })
@@ -660,8 +661,8 @@ const AdminDashboard = ({ onLogout }) => {
     const handleSaveEducation = async (educationData) => {
       try {
         const url = editingEducation 
-          ? `https://nghki1czxy8g.manus.space/api/education/${editingEducation.id}`
-          : 'https://nghki1czxy8g.manus.space/api/education'
+          ? `${API_BASE_URL}/api/education/${editingEducation.id}`
+          : `${API_BASE_URL}/api/education`
         
         const response = await fetch(url, {
           method: editingEducation ? 'PUT' : 'POST',
@@ -687,7 +688,7 @@ const AdminDashboard = ({ onLogout }) => {
     const handleDeleteEducation = async (educationId) => {
       if (confirm('Êtes-vous sûr de vouloir supprimer cette formation ?')) {
         try {
-          const response = await fetch(`https://nghki1czxy8g.manus.space/api/education/${educationId}`, {
+          const response = await fetch(`${API_BASE_URL}/api/education/${educationId}`, {
             method: 'DELETE',
             headers: getAuthHeaders()
           })
