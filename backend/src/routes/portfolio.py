@@ -1,4 +1,5 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
+from flask_mail import Message
 from src.models.portfolio import db, PersonalInfo, Skill, Project, Experience, Education, AdminUser
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -396,3 +397,26 @@ def reorder_education(current_user_id):
     db.session.commit()
 
     return jsonify({'message': 'Formations réorganisées'}), 200
+
+@portfolio_bp.route('/contact', methods=['POST'])
+def contact():
+    data = request.get_json()
+    name = data.get('name')
+    email = data.get('email')
+    subject = data.get('subject')
+    message = data.get('message')
+
+    if not name or not email or not subject or not message:
+        return jsonify({'error': 'Tous les champs sont requis'}), 400
+
+    try:
+        msg = Message(subject=f"Contact Portfolio: {subject}",
+                      sender=current_app.config['MAIL_DEFAULT_SENDER'],
+                      recipients=[current_app.config['MAIL_DEFAULT_SENDER']])
+        msg.body = f"De: {name} <{email}>\n\n{message}"
+        mail = current_app.extensions.get('mail')
+        mail.send(msg)
+        return jsonify({'message': 'Message envoyé avec succès'}), 200
+    except Exception as e:
+        current_app.logger.error(f"Erreur lors de l'envoi de l'email: {e}")
+        return jsonify({'error': 'Erreur lors de l\'envoi du message'}), 500

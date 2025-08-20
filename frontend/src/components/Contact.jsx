@@ -46,17 +46,36 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsSubmitting(true)
-    
-    // Simulation d'envoi
-    setTimeout(() => {
+    setSubmitStatus(null)
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setSubmitStatus('success')
+        setFormData({ name: '', email: '', subject: '', message: '' })
+      } else {
+        setSubmitStatus('error')
+        alert(data.error || 'Erreur lors de l\'envoi du message.')
+      }
+    } catch (error) {
+      setSubmitStatus('error')
+      console.error('Contact form error:', error)
+      alert('Erreur lors de l\'envoi du message.')
+    } finally {
       setIsSubmitting(false)
-      setSubmitStatus('success')
-      setFormData({ name: '', email: '', subject: '', message: '' })
-      
       setTimeout(() => {
         setSubmitStatus(null)
-      }, 3000)
-    }, 2000)
+      }, 5000)
+    }
   }
 
   if (isLoading) {
@@ -382,6 +401,15 @@ const Contact = () => {
                   className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-center"
                 >
                   ✅ Message envoyé avec succès ! Je vous répondrai dans les plus brefs délais.
+                </motion.div>
+              )}
+              {submitStatus === 'error' && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-center"
+                >
+                  ❌ Une erreur est survenue. Veuillez réessayer.
                 </motion.div>
               )}
             </form>
