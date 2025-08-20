@@ -1,95 +1,45 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Calendar, MapPin, Briefcase, Award } from 'lucide-react'
+import { API_BASE_URL } from '@/config'
 
 const Experience = () => {
-  const experiences = [
-    {
-      id: 1,
-      title: 'Lead Mobile Developer',
-      company: 'TechInnovate Solutions',
-      location: 'Paris, France',
-      period: '2022 - Présent',
-      type: 'CDI',
-      description: 'Direction de l\'équipe mobile et développement d\'applications innovantes pour des clients internationaux.',
-      achievements: [
-        'Management d\'une équipe de 6 développeurs mobiles',
-        'Développement de 15+ applications mobiles à succès',
-        'Mise en place d\'une architecture micro-services',
-        'Amélioration des performances de 40% sur les apps existantes'
-      ],
-      technologies: ['React Native', 'Swift', 'Kotlin', 'Firebase', 'AWS'],
-      color: '#00D4FF'
-    },
-    {
-      id: 2,
-      title: 'Senior Mobile Developer',
-      company: 'StartupLab',
-      location: 'Lyon, France',
-      period: '2020 - 2022',
-      type: 'CDI',
-      description: 'Développement d\'applications mobiles pour startups en phase de croissance rapide.',
-      achievements: [
-        'Développement de 8 applications mobiles de zéro',
-        'Intégration de solutions de paiement complexes',
-        'Optimisation des performances et de l\'UX',
-        'Formation de développeurs juniors'
-      ],
-      technologies: ['Flutter', 'React Native', 'Node.js', 'MongoDB', 'Stripe'],
-      color: '#FF6B35'
-    },
-    {
-      id: 3,
-      title: 'Mobile Developer',
-      company: 'DigitalCorp',
-      location: 'Marseille, France',
-      period: '2019 - 2020',
-      type: 'CDI',
-      description: 'Développement d\'applications mobiles pour des clients du secteur bancaire et financier.',
-      achievements: [
-        'Développement d\'apps bancaires sécurisées',
-        'Implémentation de l\'authentification biométrique',
-        'Respect des normes de sécurité bancaire',
-        'Tests automatisés et intégration continue'
-      ],
-      technologies: ['Swift', 'Kotlin', 'Java', 'SQLite', 'REST APIs'],
-      color: '#8B5CF6'
-    },
-    {
-      id: 4,
-      title: 'Junior Mobile Developer',
-      company: 'WebAgency Pro',
-      location: 'Nice, France',
-      period: '2018 - 2019',
-      type: 'CDI',
-      description: 'Premier poste en développement mobile, focus sur l\'apprentissage et la contribution aux projets clients.',
-      achievements: [
-        'Développement de 5 applications mobiles',
-        'Apprentissage des bonnes pratiques',
-        'Collaboration étroite avec les designers UX/UI',
-        'Participation aux code reviews'
-      ],
-      technologies: ['React Native', 'JavaScript', 'Firebase', 'Git'],
-      color: '#10B981'
-    }
-  ]
+  const [experiences, setExperiences] = useState([])
+  const [education, setEducation] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const education = [
-    {
-      degree: 'Master en Informatique',
-      school: 'École Supérieure d\'Informatique',
-      location: 'Paris, France',
-      period: '2016 - 2018',
-      specialization: 'Spécialisation Développement Mobile et Applications Distribuées'
-    },
-    {
-      degree: 'Licence Informatique',
-      school: 'Université de Technologie',
-      location: 'Lyon, France',
-      period: '2013 - 2016',
-      specialization: 'Programmation et Systèmes d\'Information'
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [expResponse, eduResponse] = await Promise.all([
+          fetch(`${API_BASE_URL}/api/experiences`),
+          fetch(`${API_BASE_URL}/api/education`)
+        ])
+        const expData = await expResponse.json()
+        const eduData = await eduResponse.json()
+        setExperiences(expData)
+        setEducation(eduData)
+      } catch (error) {
+        console.error('Erreur lors du chargement des données:', error)
+      } finally {
+        setIsLoading(false)
+      }
     }
-  ]
+    fetchData()
+  }, [])
+
+  const colors = ['#00D4FF', '#FF6B35', '#8B5CF6', '#10B981']
+
+  if (isLoading) {
+    return (
+      <section className="py-20 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Chargement du parcours...</p>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="py-20 bg-background">
@@ -140,7 +90,7 @@ const Experience = () => {
                 {/* Point sur la timeline */}
                 <div 
                   className="absolute -left-20 top-6 w-4 h-4 rounded-full border-4 border-background"
-                  style={{ backgroundColor: exp.color }}
+                  style={{ backgroundColor: colors[index % colors.length] }}
                 ></div>
 
                 {/* Carte d'expérience */}
@@ -172,34 +122,6 @@ const Experience = () => {
                   <p className="text-muted-foreground mb-4">
                     {exp.description}
                   </p>
-
-                  {/* Réalisations */}
-                  <div className="mb-4">
-                    <h5 className="text-sm font-semibold text-foreground mb-2 flex items-center">
-                      <Award size={16} className="mr-2 text-secondary" />
-                      Principales réalisations:
-                    </h5>
-                    <ul className="space-y-1">
-                      {exp.achievements.map((achievement, i) => (
-                        <li key={i} className="text-sm text-muted-foreground flex items-start">
-                          <span className="text-primary mr-2 mt-1">•</span>
-                          {achievement}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Technologies */}
-                  <div className="flex flex-wrap gap-2">
-                    {exp.technologies.map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium neon-border"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
                 </motion.div>
               </motion.div>
             ))}
@@ -222,7 +144,7 @@ const Experience = () => {
           <div className="grid md:grid-cols-2 gap-8">
             {education.map((edu, index) => (
               <motion.div
-                key={edu.degree}
+                key={edu.id}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.2 }}

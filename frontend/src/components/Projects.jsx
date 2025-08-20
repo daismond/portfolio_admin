@@ -1,104 +1,51 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { ExternalLink, Github, Smartphone, Star, Users, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { API_BASE_URL } from '@/config'
 
 const Projects = () => {
   const [activeFilter, setActiveFilter] = useState('all')
+  const [projects, setProjects] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const projects = [
-    {
-      id: 1,
-      title: 'EcoTrack',
-      category: 'react-native',
-      description: 'Application de suivi écologique permettant aux utilisateurs de monitorer leur empreinte carbone quotidienne.',
-      image: '/src/assets/images/mobile_app_dev.png',
-      technologies: ['React Native', 'Firebase', 'Redux', 'Maps API'],
-      features: ['Géolocalisation', 'Analytics', 'Notifications Push', 'Mode Offline'],
-      stats: {
-        downloads: '50K+',
-        rating: 4.8,
-        users: '25K+'
-      },
-      links: {
-        github: '#',
-        demo: '#',
-        store: '#'
-      },
-      status: 'Publié'
-    },
-    {
-      id: 2,
-      title: 'FitnessPro',
-      category: 'native',
-      description: 'Application de fitness complète avec suivi d\'entraînements, plans personnalisés et communauté.',
-      image: '/src/assets/images/mobile_app_dev.png',
-      technologies: ['Swift', 'Kotlin', 'Core Data', 'HealthKit'],
-      features: ['Suivi Santé', 'Plans Personnalisés', 'Communauté', 'Wearables'],
-      stats: {
-        downloads: '100K+',
-        rating: 4.9,
-        users: '75K+'
-      },
-      links: {
-        github: '#',
-        demo: '#',
-        store: '#'
-      },
-      status: 'Publié'
-    },
-    {
-      id: 3,
-      title: 'CryptoWallet',
-      category: 'flutter',
-      description: 'Portefeuille crypto sécurisé avec trading en temps réel et analytics avancés.',
-      image: '/src/assets/images/mobile_app_dev.png',
-      technologies: ['Flutter', 'Dart', 'Blockchain API', 'Biometrics'],
-      features: ['Trading', 'Sécurité Biométrique', 'Analytics', 'Multi-devises'],
-      stats: {
-        downloads: '30K+',
-        rating: 4.7,
-        users: '15K+'
-      },
-      links: {
-        github: '#',
-        demo: '#',
-        store: '#'
-      },
-      status: 'En développement'
-    },
-    {
-      id: 4,
-      title: 'FoodDelivery',
-      category: 'react-native',
-      description: 'Plateforme de livraison de nourriture avec géolocalisation en temps réel et paiements intégrés.',
-      image: '/src/assets/images/mobile_app_dev.png',
-      technologies: ['React Native', 'Node.js', 'MongoDB', 'Stripe'],
-      features: ['Géolocalisation', 'Paiements', 'Chat en temps réel', 'Notifications'],
-      stats: {
-        downloads: '200K+',
-        rating: 4.6,
-        users: '120K+'
-      },
-      links: {
-        github: '#',
-        demo: '#',
-        store: '#'
-      },
-      status: 'Publié'
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/projects`)
+        const data = await response.json()
+        setProjects(data)
+      } catch (error) {
+        console.error('Erreur lors du chargement des projets:', error)
+      } finally {
+        setIsLoading(false)
+      }
     }
-  ]
+    fetchProjects()
+  }, [])
 
-  const filters = [
+  const filters = useMemo(() => [
     { id: 'all', label: 'Tous les projets' },
-    { id: 'react-native', label: 'React Native' },
-    { id: 'native', label: 'Natif iOS/Android' },
-    { id: 'flutter', label: 'Flutter' }
-  ]
+    ...Array.from(new Set(projects.map(p => p.category))).map(category => ({
+      id: category,
+      label: category
+    }))
+  ], [projects])
 
   const filteredProjects = activeFilter === 'all' 
     ? projects 
     : projects.filter(project => project.category === activeFilter)
+
+  if (isLoading) {
+    return (
+      <section className="py-20 bg-card/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Chargement des projets...</p>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="py-20 bg-card/50">
@@ -159,7 +106,7 @@ const Projects = () => {
               {/* Image du projet */}
               <div className="relative overflow-hidden">
                 <img
-                  src={project.image}
+                  src={project.image_url}
                   alt={project.title}
                   className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
                 />
@@ -190,7 +137,7 @@ const Projects = () => {
 
                 {/* Technologies */}
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {project.technologies.map((tech) => (
+                  {JSON.parse(project.technologies).map((tech) => (
                     <span
                       key={tech}
                       className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium"
@@ -200,61 +147,15 @@ const Projects = () => {
                   ))}
                 </div>
 
-                {/* Fonctionnalités */}
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium text-foreground mb-2">Fonctionnalités clés:</h4>
-                  <div className="flex flex-wrap gap-1">
-                    {project.features.map((feature) => (
-                      <span
-                        key={feature}
-                        className="px-2 py-1 bg-secondary/10 text-secondary rounded text-xs"
-                      >
-                        {feature}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Statistiques */}
-                <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-background/50 rounded-lg">
-                  <div className="text-center">
-                    <div className="flex items-center justify-center mb-1">
-                      <Download size={14} className="text-primary mr-1" />
-                      <span className="text-sm font-semibold text-foreground">
-                        {project.stats.downloads}
-                      </span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">Téléchargements</span>
-                  </div>
-                  <div className="text-center">
-                    <div className="flex items-center justify-center mb-1">
-                      <Star size={14} className="text-yellow-400 mr-1" />
-                      <span className="text-sm font-semibold text-foreground">
-                        {project.stats.rating}
-                      </span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">Note</span>
-                  </div>
-                  <div className="text-center">
-                    <div className="flex items-center justify-center mb-1">
-                      <Users size={14} className="text-green-400 mr-1" />
-                      <span className="text-sm font-semibold text-foreground">
-                        {project.stats.users}
-                      </span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">Utilisateurs</span>
-                  </div>
-                </div>
-
                 {/* Liens */}
-                <div className="flex gap-3">
+                <div className="flex gap-3 mt-6">
                   <Button
                     size="sm"
                     variant="outline"
                     className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground neon-border"
                     asChild
                   >
-                    <a href={project.links.github} target="_blank" rel="noopener noreferrer">
+                    <a href={project.github_url} target="_blank" rel="noopener noreferrer">
                       <Github size={16} className="mr-2" />
                       Code
                     </a>
@@ -264,7 +165,7 @@ const Projects = () => {
                     className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
                     asChild
                   >
-                    <a href={project.links.demo} target="_blank" rel="noopener noreferrer">
+                    <a href={project.demo_url} target="_blank" rel="noopener noreferrer">
                       <ExternalLink size={16} className="mr-2" />
                       Démo
                     </a>

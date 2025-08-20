@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Mail, Phone, MapPin, Send, Github, Linkedin, Twitter, MessageCircle } from 'lucide-react'
+import { Mail, Phone, MapPin, Send, Github, Linkedin, Twitter } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { API_BASE_URL } from '@/config'
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,23 @@ const Contact = () => {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState(null)
+  const [personalInfo, setPersonalInfo] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchPersonalInfo = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/personal-info`)
+        const data = await response.json()
+        setPersonalInfo(data)
+      } catch (error) {
+        console.error('Erreur lors du chargement des informations personnelles:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchPersonalInfo()
+  }, [])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -37,34 +55,42 @@ const Contact = () => {
     }, 2000)
   }
 
+  if (isLoading) {
+    return (
+      <section className="py-20 bg-card/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Chargement...</p>
+        </div>
+      </section>
+    )
+  }
+
+  if (!personalInfo) {
+    return null
+  }
+
   const contactInfo = [
     {
       icon: Mail,
       title: 'Email',
-      value: 'contact@devmobile.fr',
-      href: 'mailto:contact@devmobile.fr',
+      value: personalInfo.email,
+      href: `mailto:${personalInfo.email}`,
       color: '#00D4FF'
     },
     {
       icon: Phone,
       title: 'Téléphone',
-      value: '+33 6 12 34 56 78',
-      href: 'tel:+33612345678',
+      value: personalInfo.phone,
+      href: `tel:${personalInfo.phone}`,
       color: '#FF6B35'
     },
     {
       icon: MapPin,
       title: 'Localisation',
-      value: 'Paris, France',
+      value: personalInfo.location,
       href: '#',
       color: '#8B5CF6'
-    },
-    {
-      icon: MessageCircle,
-      title: 'Disponibilité',
-      value: 'Lun - Ven, 9h - 18h',
-      href: '#',
-      color: '#10B981'
     }
   ]
 
@@ -72,25 +98,25 @@ const Contact = () => {
     {
       icon: Github,
       name: 'GitHub',
-      href: 'https://github.com',
+      href: personalInfo.github_url,
       color: '#333'
     },
     {
       icon: Linkedin,
       name: 'LinkedIn',
-      href: 'https://linkedin.com',
+      href: personalInfo.linkedin_url,
       color: '#0077B5'
     },
     {
       icon: Twitter,
       name: 'Twitter',
-      href: 'https://twitter.com',
+      href: personalInfo.twitter_url,
       color: '#1DA1F2'
     },
     {
       icon: Mail,
       name: 'Email',
-      href: 'mailto:contact@devmobile.fr',
+      href: `mailto:${personalInfo.email}`,
       color: '#EA4335'
     }
   ]
@@ -350,7 +376,7 @@ const Contact = () => {
             <Button
               size="lg"
               className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 hover-glow"
-              onClick={() => window.location.href = 'mailto:contact@devmobile.fr'}
+              onClick={() => window.location.href = `mailto:${personalInfo.email}`}
             >
               <Mail size={20} className="mr-2" />
               Envoyer un email
@@ -359,7 +385,7 @@ const Contact = () => {
               variant="outline"
               size="lg"
               className="border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-3 neon-border hover-glow"
-              onClick={() => window.location.href = 'tel:+33612345678'}
+              onClick={() => window.location.href = `tel:${personalInfo.phone}`}
             >
               <Phone size={20} className="mr-2" />
               Appeler maintenant
@@ -372,5 +398,3 @@ const Contact = () => {
 }
 
 export default Contact
-
-

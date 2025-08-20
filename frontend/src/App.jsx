@@ -15,32 +15,19 @@ import ParticleBackground from './components/ParticleBackground'
 import AdminApp from './components/Admin/AdminApp'
 
 function PortfolioHome() {
-  const [isLoading, setIsLoading] = useState(true)
+  const [dataVersion, setDataVersion] = useState(0)
 
   useEffect(() => {
-    // Simulation du chargement
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 2000)
+    const handleDataChanged = () => {
+      setDataVersion(prevVersion => prevVersion + 1)
+    }
 
-    return () => clearTimeout(timer)
+    window.addEventListener('data-changed', handleDataChanged)
+
+    return () => {
+      window.removeEventListener('data-changed', handleDataChanged)
+    }
   }, [])
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <motion.div
-          className="text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold gradient-text">Chargement du portfolio...</h2>
-        </motion.div>
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -49,27 +36,27 @@ function PortfolioHome() {
       
       <main>
         <section id="hero">
-          <Hero />
+          <Hero key={dataVersion} />
         </section>
         
         <section id="about">
-          <About />
+          <About key={dataVersion} />
         </section>
         
         <section id="skills">
-          <Skills />
+          <Skills key={dataVersion} />
         </section>
         
         <section id="projects">
-          <Projects />
+          <Projects key={dataVersion} />
         </section>
         
         <section id="experience">
-          <Experience />
+          <Experience key={dataVersion} />
         </section>
         
         <section id="contact">
-          <Contact />
+          <Contact key={dataVersion} />
         </section>
       </main>
     </div>
