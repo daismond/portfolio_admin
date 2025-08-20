@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -15,19 +16,27 @@ const Navigation = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  const location = useLocation()
+  const isBlogPage = location.pathname.startsWith('/blog')
+
   const navItems = [
-    { href: '#hero', label: 'Accueil' },
+    { href: '/', label: 'Accueil', type: 'link' },
     { href: '#about', label: 'À Propos' },
     { href: '#skills', label: 'Compétences' },
     { href: '#projects', label: 'Projets' },
     { href: '#experience', label: 'Expérience' },
+    { href: '/blog', label: 'Blog', type: 'link' },
     { href: '#contact', label: 'Contact' }
   ]
 
   const scrollToSection = (href) => {
-    const element = document.querySelector(href)
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' })
+    if (isBlogPage) {
+      window.location.href = `/${href}`
+    } else {
+      const element = document.querySelector(href)
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' })
+      }
     }
     setIsOpen(false)
   }
@@ -55,18 +64,33 @@ const Navigation = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-8">
             {navItems.map((item, index) => (
-              <motion.button
-                key={item.href}
-                className="text-foreground hover:text-primary transition-colors duration-300 relative group"
-                onClick={() => scrollToSection(item.href)}
-                whileHover={{ y: -2 }}
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                {item.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
-              </motion.button>
+              item.type === 'link' ? (
+                <Link to={item.href} key={item.href}>
+                  <motion.button
+                    className="text-foreground hover:text-primary transition-colors duration-300 relative group"
+                    whileHover={{ y: -2 }}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    {item.label}
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+                  </motion.button>
+                </Link>
+              ) : (
+                <motion.button
+                  key={item.href}
+                  className="text-foreground hover:text-primary transition-colors duration-300 relative group"
+                  onClick={() => scrollToSection(item.href)}
+                  whileHover={{ y: -2 }}
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  {item.label}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+                </motion.button>
+              )
             ))}
           </div>
 
@@ -91,16 +115,29 @@ const Navigation = () => {
         >
           <div className="py-4 space-y-4 border-t border-border">
             {navItems.map((item, index) => (
-              <motion.button
-                key={item.href}
-                className="block w-full text-left text-foreground hover:text-primary transition-colors duration-300 py-2"
-                onClick={() => scrollToSection(item.href)}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: isOpen ? 1 : 0, x: isOpen ? 0 : -20 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                {item.label}
-              </motion.button>
+              item.type === 'link' ? (
+                <Link to={item.href} key={item.href}>
+                  <motion.button
+                    className="block w-full text-left text-foreground hover:text-primary transition-colors duration-300 py-2"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: isOpen ? 1 : 0, x: isOpen ? 0 : -20 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    {item.label}
+                  </motion.button>
+                </Link>
+              ) : (
+                <motion.button
+                  key={item.href}
+                  className="block w-full text-left text-foreground hover:text-primary transition-colors duration-300 py-2"
+                  onClick={() => scrollToSection(item.href)}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: isOpen ? 1 : 0, x: isOpen ? 0 : -20 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  {item.label}
+                </motion.button>
+              )
             ))}
           </div>
         </motion.div>
