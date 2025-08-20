@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Save, X, Plus, Trash2 } from 'lucide-react'
+import { parseTechnologies, parseAchievements } from '@/lib/utils'
 
 const ExperienceForm = ({ experience, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -28,8 +29,8 @@ const ExperienceForm = ({ experience, onSave, onCancel }) => {
         period: experience.period || '',
         employment_type: experience.employment_type || '',
         description: experience.description || '',
-        achievements: experience.achievements ? JSON.parse(experience.achievements) : [],
-        technologies: experience.technologies ? JSON.parse(experience.technologies) : [],
+        achievements: parseAchievements(experience.achievements),
+        technologies: parseTechnologies(experience.technologies),
         color: experience.color || '#00bcd4',
         order_index: experience.order_index || 0
       })
@@ -80,7 +81,11 @@ const ExperienceForm = ({ experience, onSave, onCancel }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onSave(formData)
+    onSave({
+      ...formData,
+      achievements: JSON.stringify(formData.achievements),
+      technologies: JSON.stringify(formData.technologies)
+    })
   }
 
   return (

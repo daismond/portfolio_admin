@@ -21,3 +21,37 @@ export const parseTechnologies = (technologies) => {
   }
   return [];
 };
+
+export const parseAchievements = (achievements) => {
+  if (Array.isArray(achievements)) {
+    return achievements;
+  }
+  if (typeof achievements === 'string') {
+    try {
+      const parsed = JSON.parse(achievements);
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+    } catch (e) {
+      return achievements.split(',').map(t => t.trim()).filter(Boolean);
+    }
+  }
+  return [];
+};
+
+export const parseFeatures = (features) => {
+  if (Array.isArray(features)) {
+    return features;
+  }
+  if (typeof features === 'string') {
+    try {
+      const parsed = JSON.parse(features);
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+    } catch (e) {
+      return features.split(',').map(t => t.trim()).filter(Boolean);
+    }
+  }
+  return [];
+};
