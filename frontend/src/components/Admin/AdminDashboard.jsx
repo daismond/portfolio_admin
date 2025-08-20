@@ -13,7 +13,8 @@ import {
   Edit,
   Trash2,
   Eye,
-  LayoutDashboard
+  LayoutDashboard,
+  Menu
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import SkillForm from './Forms/SkillForm'
@@ -22,6 +23,15 @@ import ExperienceForm from './Forms/ExperienceForm'
 import EducationForm from './Forms/EducationForm'
 import ConfirmationModal from './ConfirmationModal'
 import Dashboard from './Dashboard'
+import { DndContext, closestCenter } from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { API_BASE_URL } from '@/config'
 import { parseTechnologies } from '@/lib/utils'
 
@@ -299,6 +309,64 @@ const AdminDashboard = ({ onLogout }) => {
     )
   }
 
+  const SortableSkill = ({ skill }) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+    } = useSortable({id: skill.id});
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
+
+    return (
+      <div ref={setNodeRef} style={style} {...attributes} className="bg-card p-4 rounded-lg border border-border flex items-center">
+        <span {...listeners} className="cursor-grab p-2">
+          <Menu />
+        </span>
+        <div className="flex-1 ml-4">
+          <h4 className="font-semibold text-foreground">{skill.name}</h4>
+          <p className="text-sm text-muted-foreground">{skill.category}</p>
+          <div className="mt-2">
+            <div className="flex items-center">
+              <span className="text-sm mr-2">Niveau: {skill.level}%</span>
+              <div className="flex-1 bg-background rounded-full h-2">
+                <div
+                  className="h-2 rounded-full bg-primary"
+                  style={{ width: `${skill.level}%` }}
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex space-x-2 ml-4">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setEditingSkill(skill)
+              setShowForm(true)
+            }}
+          >
+            <Edit size={16} />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handleDeleteSkill(skill.id)}
+            className="text-red-400 hover:text-red-300"
+          >
+            <Trash2 size={16} />
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   // Composant de gestion des compétences
   const SkillsManagement = () => {
     const [skills, setSkills] = useState(data.skills || [])
@@ -361,6 +429,31 @@ const AdminDashboard = ({ onLogout }) => {
       setShowDeleteModal(true)
     }
 
+    const handleDragEnd = async (event) => {
+      const {active, over} = event;
+
+      if (active.id !== over.id) {
+        const oldIndex = skills.findIndex((s) => s.id === active.id);
+        const newIndex = skills.findIndex((s) => s.id === over.id);
+        const newSkills = arrayMove(skills, oldIndex, newIndex);
+        setSkills(newSkills);
+
+        const skill_ids = newSkills.map(s => s.id);
+        try {
+          await fetch(`${API_BASE_URL}/api/skills/reorder`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ skill_ids })
+          });
+          window.dispatchEvent(new Event('data-changed'));
+        } catch (error) {
+          console.error('Erreur lors de la réorganisation:', error);
+          // Revert to the old order if the API call fails
+          setSkills(skills);
+        }
+      }
+    }
+
     return (
       <div>
         <ConfirmationModal
@@ -395,51 +488,78 @@ const AdminDashboard = ({ onLogout }) => {
           />
         )}
 
-        <div className="grid gap-4">
-          {skills.map((skill) => (
-            <div key={skill.id} className="bg-card p-4 rounded-lg border border-border">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <h4 className="font-semibold text-foreground">{skill.name}</h4>
-                  <p className="text-sm text-muted-foreground">{skill.category}</p>
-                  <div className="mt-2">
-                    <div className="flex items-center">
-                      <span className="text-sm mr-2">Niveau: {skill.level}%</span>
-                      <div className="flex-1 bg-background rounded-full h-2">
-                        <div 
-                          className="h-2 rounded-full bg-primary" 
-                          style={{ width: `${skill.level}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex space-x-2 ml-4">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setEditingSkill(skill)
-                      setShowForm(true)
-                    }}
-                  >
-                    <Edit size={16} />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleDeleteSkill(skill.id)}
-                    className="text-red-400 hover:text-red-300"
-                  >
-                    <Trash2 size={16} />
-                  </Button>
-                </div>
-              </div>
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={skills}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="grid gap-4">
+              {skills.map((skill) => (
+                <SortableSkill key={skill.id} skill={skill} />
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       </div>
     )
+  }
+
+  const SortableProject = ({ project }) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+    } = useSortable({id: project.id});
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
+
+    return (
+      <div ref={setNodeRef} style={style} {...attributes} className="bg-card p-4 rounded-lg border border-border flex items-center">
+        <span {...listeners} className="cursor-grab p-2">
+          <Menu />
+        </span>
+        <div className="flex-1 ml-4">
+          <h4 className="font-semibold text-foreground">{project.title}</h4>
+          <p className="text-sm text-muted-foreground mb-2">{project.category}</p>
+          <p className="text-sm text-foreground">{project.description}</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {parseTechnologies(project.technologies).map((tech, index) => (
+              <span key={index} className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">
+                {tech}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="flex space-x-2 ml-4">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setEditingProject(project)
+              setShowForm(true)
+            }}
+          >
+            <Edit size={16} />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handleDeleteProject(project.id)}
+            className="text-red-400 hover:text-red-300"
+          >
+            <Trash2 size={16} />
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   // Composant de gestion des projets
@@ -504,6 +624,31 @@ const AdminDashboard = ({ onLogout }) => {
       setShowDeleteModal(true)
     }
 
+    const handleDragEnd = async (event) => {
+      const {active, over} = event;
+
+      if (active.id !== over.id) {
+        const oldIndex = projects.findIndex((p) => p.id === active.id);
+        const newIndex = projects.findIndex((p) => p.id === over.id);
+        const newProjects = arrayMove(projects, oldIndex, newIndex);
+        setProjects(newProjects);
+
+        const project_ids = newProjects.map(p => p.id);
+        try {
+          await fetch(`${API_BASE_URL}/api/projects/reorder`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ project_ids })
+          });
+          window.dispatchEvent(new Event('data-changed'));
+        } catch (error) {
+          console.error('Erreur lors de la réorganisation:', error);
+          // Revert to the old order if the API call fails
+          setProjects(projects);
+        }
+      }
+    }
+
     return (
       <div>
         <ConfirmationModal
@@ -538,48 +683,71 @@ const AdminDashboard = ({ onLogout }) => {
           />
         )}
 
-        <div className="grid gap-4">
-          {projects.map((project) => (
-            <div key={project.id} className="bg-card p-4 rounded-lg border border-border">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <h4 className="font-semibold text-foreground">{project.title}</h4>
-                  <p className="text-sm text-muted-foreground mb-2">{project.category}</p>
-                  <p className="text-sm text-foreground">{project.description}</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {parseTechnologies(project.technologies).map((tech, index) => (
-                      <span key={index} className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex space-x-2 ml-4">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setEditingProject(project)
-                      setShowForm(true)
-                    }}
-                  >
-                    <Edit size={16} />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleDeleteProject(project.id)}
-                    className="text-red-400 hover:text-red-300"
-                  >
-                    <Trash2 size={16} />
-                  </Button>
-                </div>
-              </div>
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={projects}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="grid gap-4">
+              {projects.map((project) => (
+                <SortableProject key={project.id} project={project} />
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       </div>
     )
+  }
+
+  const SortableExperience = ({ experience }) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+    } = useSortable({id: experience.id});
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
+
+    return (
+      <div ref={setNodeRef} style={style} {...attributes} className="bg-card p-4 rounded-lg border border-border flex items-center">
+        <span {...listeners} className="cursor-grab p-2">
+          <Menu />
+        </span>
+        <div className="flex-1 ml-4">
+          <h4 className="font-semibold text-foreground">{experience.title}</h4>
+          <p className="text-sm text-muted-foreground">{experience.company} • {experience.period}</p>
+          <p className="text-sm text-foreground mt-2">{experience.description}</p>
+        </div>
+        <div className="flex space-x-2 ml-4">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setEditingExperience(experience)
+              setShowForm(true)
+            }}
+          >
+            <Edit size={16} />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handleDeleteExperience(experience.id)}
+            className="text-red-400 hover:text-red-300"
+          >
+            <Trash2 size={16} />
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   // Composant de gestion des expériences
@@ -644,6 +812,31 @@ const AdminDashboard = ({ onLogout }) => {
       setShowDeleteModal(true)
     }
 
+    const handleDragEnd = async (event) => {
+      const {active, over} = event;
+
+      if (active.id !== over.id) {
+        const oldIndex = experiences.findIndex((e) => e.id === active.id);
+        const newIndex = experiences.findIndex((e) => e.id === over.id);
+        const newExperiences = arrayMove(experiences, oldIndex, newIndex);
+        setExperiences(newExperiences);
+
+        const experience_ids = newExperiences.map(e => e.id);
+        try {
+          await fetch(`${API_BASE_URL}/api/experiences/reorder`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ experience_ids })
+          });
+          window.dispatchEvent(new Event('data-changed'));
+        } catch (error) {
+          console.error('Erreur lors de la réorganisation:', error);
+          // Revert to the old order if the API call fails
+          setExperiences(experiences);
+        }
+      }
+    }
+
     return (
       <div>
         <ConfirmationModal
@@ -678,41 +871,73 @@ const AdminDashboard = ({ onLogout }) => {
           />
         )}
 
-        <div className="grid gap-4">
-          {experiences.map((experience) => (
-            <div key={experience.id} className="bg-card p-4 rounded-lg border border-border">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <h4 className="font-semibold text-foreground">{experience.title}</h4>
-                  <p className="text-sm text-muted-foreground">{experience.company} • {experience.period}</p>
-                  <p className="text-sm text-foreground mt-2">{experience.description}</p>
-                </div>
-                <div className="flex space-x-2 ml-4">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setEditingExperience(experience)
-                      setShowForm(true)
-                    }}
-                  >
-                    <Edit size={16} />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleDeleteExperience(experience.id)}
-                    className="text-red-400 hover:text-red-300"
-                  >
-                    <Trash2 size={16} />
-                  </Button>
-                </div>
-              </div>
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={experiences}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="grid gap-4">
+              {experiences.map((experience) => (
+                <SortableExperience key={experience.id} experience={experience} />
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       </div>
     )
+  }
+
+  const SortableEducation = ({ edu }) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+    } = useSortable({id: edu.id});
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
+
+    return (
+      <div ref={setNodeRef} style={style} {...attributes} className="bg-card p-4 rounded-lg border border-border flex items-center">
+        <span {...listeners} className="cursor-grab p-2">
+          <Menu />
+        </span>
+        <div className="flex-1 ml-4">
+          <h4 className="font-semibold text-foreground">{edu.degree}</h4>
+          <p className="text-sm text-muted-foreground">{edu.school} • {edu.period}</p>
+          {edu.specialization && (
+            <p className="text-sm text-foreground mt-1">Spécialisation: {edu.specialization}</p>
+          )}
+        </div>
+        <div className="flex space-x-2 ml-4">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setEditingEducation(edu)
+              setShowForm(true)
+            }}
+          >
+            <Edit size={16} />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handleDeleteEducation(edu.id)}
+            className="text-red-400 hover:text-red-300"
+          >
+            <Trash2 size={16} />
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   // Composant de gestion de l'éducation
@@ -777,6 +1002,31 @@ const AdminDashboard = ({ onLogout }) => {
       setShowDeleteModal(true)
     }
 
+    const handleDragEnd = async (event) => {
+      const {active, over} = event;
+
+      if (active.id !== over.id) {
+        const oldIndex = education.findIndex((e) => e.id === active.id);
+        const newIndex = education.findIndex((e) => e.id === over.id);
+        const newEducation = arrayMove(education, oldIndex, newIndex);
+        setEducation(newEducation);
+
+        const education_ids = newEducation.map(e => e.id);
+        try {
+          await fetch(`${API_BASE_URL}/api/education/reorder`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ education_ids })
+          });
+          window.dispatchEvent(new Event('data-changed'));
+        } catch (error) {
+          console.error('Erreur lors de la réorganisation:', error);
+          // Revert to the old order if the API call fails
+          setEducation(education);
+        }
+      }
+    }
+
     return (
       <div>
         <ConfirmationModal
@@ -811,41 +1061,21 @@ const AdminDashboard = ({ onLogout }) => {
           />
         )}
 
-        <div className="grid gap-4">
-          {education.map((edu) => (
-            <div key={edu.id} className="bg-card p-4 rounded-lg border border-border">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <h4 className="font-semibold text-foreground">{edu.degree}</h4>
-                  <p className="text-sm text-muted-foreground">{edu.school} • {edu.period}</p>
-                  {edu.specialization && (
-                    <p className="text-sm text-foreground mt-1">Spécialisation: {edu.specialization}</p>
-                  )}
-                </div>
-                <div className="flex space-x-2 ml-4">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setEditingEducation(edu)
-                      setShowForm(true)
-                    }}
-                  >
-                    <Edit size={16} />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleDeleteEducation(edu.id)}
-                    className="text-red-400 hover:text-red-300"
-                  >
-                    <Trash2 size={16} />
-                  </Button>
-                </div>
-              </div>
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={education}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="grid gap-4">
+              {education.map((edu) => (
+                <SortableEducation key={edu.id} edu={edu} />
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       </div>
     )
   }
