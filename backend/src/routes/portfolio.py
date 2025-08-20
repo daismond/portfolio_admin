@@ -166,6 +166,21 @@ def delete_skill(current_user_id, skill_id):
     
     return jsonify({'message': 'Compétence supprimée'}), 200
 
+@portfolio_bp.route('/skills/reorder', methods=['POST'])
+@token_required
+def reorder_skills(current_user_id):
+    data = request.get_json()
+    skill_ids = data.get('skill_ids', [])
+
+    for index, skill_id in enumerate(skill_ids):
+        skill = Skill.query.get(skill_id)
+        if skill:
+            skill.order_index = index
+
+    db.session.commit()
+
+    return jsonify({'message': 'Compétences réorganisées'}), 200
+
 # Routes pour les projets
 @portfolio_bp.route('/projects', methods=['GET'])
 def get_projects():
@@ -229,6 +244,21 @@ def delete_project(current_user_id, project_id):
     
     return jsonify({'message': 'Projet supprimé'}), 200
 
+@portfolio_bp.route('/projects/reorder', methods=['POST'])
+@token_required
+def reorder_projects(current_user_id):
+    data = request.get_json()
+    project_ids = data.get('project_ids', [])
+
+    for index, project_id in enumerate(project_ids):
+        project = Project.query.get(project_id)
+        if project:
+            project.order_index = index
+
+    db.session.commit()
+
+    return jsonify({'message': 'Projets réorganisés'}), 200
+
 # Routes pour les expériences
 @portfolio_bp.route('/experiences', methods=['GET'])
 def get_experiences():
@@ -288,6 +318,21 @@ def delete_experience(current_user_id, exp_id):
     
     return jsonify({'message': 'Expérience supprimée'}), 200
 
+@portfolio_bp.route('/experiences/reorder', methods=['POST'])
+@token_required
+def reorder_experiences(current_user_id):
+    data = request.get_json()
+    experience_ids = data.get('experience_ids', [])
+
+    for index, exp_id in enumerate(experience_ids):
+        experience = Experience.query.get(exp_id)
+        if experience:
+            experience.order_index = index
+
+    db.session.commit()
+
+    return jsonify({'message': 'Expériences réorganisées'}), 200
+
 # Routes pour l'éducation
 @portfolio_bp.route('/education', methods=['GET'])
 def get_education():
@@ -337,3 +382,17 @@ def delete_education(current_user_id, edu_id):
     
     return jsonify({'message': 'Formation supprimée'}), 200
 
+@portfolio_bp.route('/education/reorder', methods=['POST'])
+@token_required
+def reorder_education(current_user_id):
+    data = request.get_json()
+    education_ids = data.get('education_ids', [])
+
+    for index, edu_id in enumerate(education_ids):
+        education = Education.query.get(edu_id)
+        if education:
+            education.order_index = index
+
+    db.session.commit()
+
+    return jsonify({'message': 'Formations réorganisées'}), 200
