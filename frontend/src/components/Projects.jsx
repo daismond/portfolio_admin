@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { ExternalLink, Github, Smartphone, Star, Users, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { API_BASE_URL } from '@/config'
+import { parseTechnologies } from '@/lib/utils'
 
 const Projects = () => {
   const [activeFilter, setActiveFilter] = useState('all')
@@ -137,27 +138,14 @@ const Projects = () => {
 
                 {/* Technologies */}
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {(() => {
-                    try {
-                      return JSON.parse(project.technologies).map((tech) => (
-                        <span
-                          key={tech}
-                          className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium"
-                        >
-                          {tech}
-                        </span>
-                      ));
-                    } catch (e) {
-                      return (project.technologies || '').split(',').map((tech) => (
-                        <span
-                          key={tech}
-                          className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium"
-                        >
-                          {tech.trim()}
-                        </span>
-                      ));
-                    }
-                  })()}
+                  {parseTechnologies(project.technologies).map((tech) => (
+                    <span
+                      key={tech}
+                      className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium"
+                    >
+                      {tech}
+                    </span>
+                  ))}
                 </div>
 
                 {/* Liens */}

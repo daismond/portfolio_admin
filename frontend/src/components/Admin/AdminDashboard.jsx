@@ -20,6 +20,7 @@ import ProjectForm from './Forms/ProjectForm'
 import ExperienceForm from './Forms/ExperienceForm'
 import EducationForm from './Forms/EducationForm'
 import { API_BASE_URL } from '@/config'
+import { parseTechnologies } from '@/lib/utils'
 
 const AdminDashboard = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState('personal')
@@ -508,21 +509,11 @@ const AdminDashboard = ({ onLogout }) => {
                   <p className="text-sm text-muted-foreground mb-2">{project.category}</p>
                   <p className="text-sm text-foreground">{project.description}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {(() => {
-                      try {
-                        return JSON.parse(project.technologies).map((tech, index) => (
-                          <span key={index} className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">
-                            {tech}
-                          </span>
-                        ));
-                      } catch (e) {
-                        return (project.technologies || '').split(',').map((tech, index) => (
-                          <span key={index} className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">
-                            {tech.trim()}
-                          </span>
-                        ));
-                      }
-                    })()}
+                    {parseTechnologies(project.technologies).map((tech, index) => (
+                      <span key={index} className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">
+                        {tech}
+                      </span>
+                    ))}
                   </div>
                 </div>
                 <div className="flex space-x-2 ml-4">
