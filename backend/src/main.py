@@ -38,22 +38,20 @@ app.register_blueprint(blog_bp, url_prefix='/api')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-# Database Configuration - Supabase (PostgreSQL) or fallback to SQLite
-DB_USER = os.environ.get('DB_USER')
-DB_PASSWORD = os.environ.get('DB_PASSWORD')
-DB_HOST = os.environ.get('DB_HOST')
-DB_NAME = os.environ.get('DB_NAME')
-DB_PORT = os.environ.get('DB_PORT', '5432')
+# Database Configuration - Supabase/PostgreSQL or fallback to SQLite
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
-if all([DB_USER, DB_PASSWORD, DB_HOST, DB_NAME]):
-    # If all Supabase variables are set, use PostgreSQL
-    DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-    print("Connecting to PostgreSQL database...")
+if DATABASE_URL:
+    # If DATABASE_URL is set, use it for the remote PostgreSQL database.
+    print("INFO: DATABASE_URL detected. Connecting to external PostgreSQL database...")
+    # Ensure the URI scheme is 'postgresql' for SQLAlchemy compatibility.
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 else:
-    # Otherwise, fall back to SQLite for local development
+    # If DATABASE_URL is not set, fall back to the local SQLite database for development.
     db_path = os.path.join(os.path.dirname(__file__), 'database', 'app.db')
-    print(f"WARNING: Database environment variables not set. Falling back to SQLite at {db_path}")
+    print(f"INFO: DATABASE_URL not set. Falling back to SQLite database at {db_path}")
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

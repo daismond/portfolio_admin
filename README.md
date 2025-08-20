@@ -56,13 +56,11 @@ Pour que l'application fonctionne pleinement en production, vous devez configure
 
 #### Base de Données (Supabase/PostgreSQL)
 
-Pour connecter l'application à une base de données PostgreSQL distante (comme celle fournie par Supabase), définissez les variables suivantes. **Si ces variables ne sont pas définies, l'application utilisera une base de données SQLite locale (`backend/src/database/app.db`), ce qui est utile pour le développement.**
+Pour connecter l'application à une base de données PostgreSQL distante (comme celle fournie par Supabase), il vous suffit de définir une seule variable d'environnement. Vous pouvez copier/coller l'URL de connexion (la "Connection string") directement depuis votre tableau de bord Supabase.
 
--   `DB_HOST`: L'adresse du serveur de votre base de données (ex: `aws-0-eu-central-1.pooler.supabase.com`).
--   `DB_NAME`: Le nom de la base de données (généralement `postgres` pour Supabase).
--   `DB_USER`: Le nom d'utilisateur de la base de données.
--   `DB_PASSWORD`: Le mot de passe de la base de données.
--   `DB_PORT`: Le port de connexion (ex: `5432` ou `6543` pour le pooling de connexion Supabase).
+-   `DATABASE_URL`: L'URL complète de connexion à votre base de données PostgreSQL.
+
+**Note importante :** Si la variable `DATABASE_URL` n'est pas définie, l'application basculera automatiquement sur une base de données SQLite locale. C'est idéal pour le développement, car vous n'avez pas besoin de configurer une base de données distante pour travailler sur l'application.
 
 #### Configuration E-mail
 
