@@ -1,3 +1,89 @@
+# 🔥 COMMENT LANCER LE PROJET (GUIDE FINAL) 🔥
+
+**IMPORTANT : Suivez ces étapes dans l'ordre après avoir récupéré les dernières modifications.**
+
+### Étape 1 : Mettre à jour les dépendances du Backend (Crucial)
+
+1.  Ouvrez un terminal.
+2.  Naviguez jusqu'au dossier `backend` : `cd chemin/vers/votre/projet/backend`
+3.  Activez votre environnement virtuel Python (ex: `source venv/bin/activate`).
+4.  Lancez la commande pour installer le nouveau pilote de base de données :
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+### Étape 2 : Configurer le fichier `.env`
+
+1.  Dans le dossier `backend`, assurez-vous d'avoir un fichier `.env`.
+2.  Ouvrez-le et ajoutez/vérifiez ces deux lignes (remplacez par VOS valeurs) :
+    ```
+    DATABASE_URL="postgresql://postgres:[VOTRE_MOT_DE_PASSE]@db.xxxx.supabase.co:5432/postgres"
+    FRONTEND_ORIGINS="https://votre-frontend.com,http://localhost:5173"
+    ```
+
+### Étape 3 : Initialiser la Base de Données (Une seule fois)
+
+Cette étape remplit votre base de données Supabase vide.
+
+1.  En restant dans le terminal dans le dossier `backend` (avec l'environnement activé), lancez :
+    ```bash
+    python -m src.seed_data
+    ```
+2.  Le script doit se terminer avec le message "Données initialisées avec succès!". **Si vous avez encore une erreur ici, le problème vient de votre chaîne de connexion `DATABASE_URL`.**
+
+### Étape 4 : Configurer le Frontend (Optionnel, pour la production)
+
+Par défaut, le frontend en mode développement (`pnpm run dev`) se connectera à votre backend local sur `http://localhost:5000`.
+
+Pour le déploiement en production, vous devez lui indiquer l'URL de votre backend déployé.
+1.  Allez dans le dossier `frontend`.
+2.  Créez un fichier `.env.production` (vous pouvez copier `frontend/.env.production.example`).
+3.  Modifiez le fichier et mettez l'URL de votre backend :
+    ```
+    VITE_API_BASE_URL=https://votre-backend-en-production.com
+    ```
+
+### Étape 5 : Démarrer l'application
+
+1.  **Backend** : Dans un terminal, allez dans `backend` (avec l'environnement virtuel activé) et lancez `python src/main.py`.
+2.  **Frontend** : Dans un **autre** terminal, allez dans `frontend` et lancez `pnpm run dev`.
+
+---
+
+# 🚨 DÉPANNAGE DES ERREURS DE CONNEXION 🚨
+
+Si le script `seed_data.py` échoue avec une erreur contenant `getaddrinfo failed` ou `Can't create a connection to host...`, suivez ces étapes. **Cette erreur n'est pas un bug du code, mais un problème de réseau ou de configuration de votre côté.**
+
+### Étape 1 : Vérifier l'adresse de votre base de données (Cause n°1)
+
+L'erreur signifie que votre ordinateur n'arrive pas à trouver le serveur de Supabase à l'adresse que vous avez indiquée.
+
+1.  Retournez sur votre tableau de bord Supabase.
+2.  Allez dans `Project Settings` > `Database`.
+3.  Sous `Connection string`, trouvez le champ **Host**.
+4.  **Copiez cette valeur avec une extrême attention.**
+5.  Ouvrez votre fichier `backend/.env` et **collez-la** à la place de l'ancienne valeur dans votre `DATABASE_URL`. Assurez-vous qu'il n'y a **aucune faute de frappe**.
+
+### Étape 2 : Vérifier que votre projet Supabase est actif
+
+Assurez-vous que votre projet n'est pas en pause sur Supabase.
+
+### Étape 3 : Tester votre connexion réseau
+
+Ce test permet de confirmer si le problème vient de votre machine/réseau.
+
+1.  Ouvrez une invite de commande Windows (tapez `cmd` dans le menu Démarrer).
+2.  Lancez cette commande, en remplaçant `[VOTRE_HOST_SUPABASE]` par l'adresse que vous avez copiée à l'étape 1 :
+    ```bash
+    ping [VOTRE_HOST_SUPABASE]
+    ```
+    *   **Si `ping` réussit**, vous verrez des réponses du serveur. Le problème est probablement une petite erreur dans l'URL complète de votre fichier `.env`.
+    *   **Si `ping` échoue** (en disant "hôte introuvable" ou "délai d'attente dépassé"), cela confirme que votre ordinateur ne peut pas joindre le serveur. Les causes peuvent être un pare-feu, un antivirus, ou un problème de DNS local.
+
+Une fois que vous avez résolu le problème de connexion (généralement à l'étape 1), le script `python -m src.seed_data` devrait fonctionner.
+
+---
+
 # Portfolio Développeur Mobile avec Administration
 
 Ce dépôt contient le code source d'un portfolio de développeur mobile moderne et professionnel, incluant une interface d'administration pour gérer les données. Le projet est divisé en deux parties principales : un frontend développé avec React et un backend développé avec Flask.
